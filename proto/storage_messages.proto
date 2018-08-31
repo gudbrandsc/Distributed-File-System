@@ -1,0 +1,12 @@
+syntax = "proto3";
+option java_package = "edu.usfca.cs.dfs";
+
+message StoreChunk {
+    string fileName = 1;
+    int32 chunkId = 2;
+    bytes data = 3;
+}
+
+message RetrieveFile {
+    string fileName = 1;
+}

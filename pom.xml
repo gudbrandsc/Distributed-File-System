@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>edu.usfca.cs.dfs</groupId>
+    <artifactId>dfs</artifactId>
+    <version>1.0</version>
+    <packaging>jar</packaging>
+
+    <name>${project.groupId}:${project.artifactId}</name>
+    <url>https://www.cs.usfca.edu/~mmalensek/cs677</url>
+    <description>
+        Project 1: Distributed File System
+    </description>
+
+    <organization>
+        <name>University of San Francisco Department of Computer Science</name>
+        <url>https://www.cs.usfca.edu/</url>
+    </organization>
+
+    <developers>
+        <developer>
+            <name>Your Name Here</name>
+            <email>Email@email.com</email>
+            <url>Your website, github profile, etc</url>
+            <organization>University of San Francisco</organization>
+        </developer>
+    </developers>
+
+    <properties>
+        <jdk.version>1.8</jdk.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <source>${jdk.version}</source>
+                    <target>${jdk.version}</target>
+
+                    <compilerArgument>-Xlint:all</compilerArgument>
+                    <compilerArgument>-Xpkginfo:always</compilerArgument>
+                    <showDeprecation>true</showDeprecation>
+                    <showWarnings>true</showWarnings>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>3.6.1</version>
+        </dependency>
+    </dependencies>
+
+</project>
