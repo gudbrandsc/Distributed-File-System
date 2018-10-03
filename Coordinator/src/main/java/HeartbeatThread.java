@@ -1,22 +1,26 @@
 
+import Hash.BalancedHashRing;
+
+import java.math.BigInteger;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 public class HeartbeatThread extends Thread{
     private volatile boolean newHeartBeat;
-    private String myip;
-    private int myPort;
-    private HashMap<String, StorageNodeInfo> storageNodes;
-    private StorageNodeInfo storageNodeInfo;
+    private BalancedHashRing balancedHashRing;
+    private HashMap<String, StorageNode> storageNodeMap;
+    private int port;
+    private String ip;
+    private BigInteger position;
 
-
-    public HeartbeatThread(String myip, int myPort, HashMap<String, StorageNodeInfo> storageNodes, StorageNodeInfo storageNodeInfo) {
+    public HeartbeatThread(HashMap<String, StorageNode> storageNodeMap, BalancedHashRing balancedHashRing, String ip, int port, BigInteger position) {
+        this.balancedHashRing = balancedHashRing;
+        this.storageNodeMap = storageNodeMap;
         this.newHeartBeat = true;
-        this.myip = myip;
-        this.myPort = myPort;
-        this.storageNodes = storageNodes;
-        this.storageNodeInfo = storageNodeInfo;
+        this.ip = ip;
+        this.port = port;
+        this.position = position;
     }
 
     /**
@@ -26,7 +30,7 @@ public class HeartbeatThread extends Thread{
      * Sends heartbeats every 5 seconds
      */
     public void run() {
-        System.out.println("Started waiting for heartbeats");
+//        System.out.println("Started waiting for heartbeats");
         while (newHeartBeat) {
             this.newHeartBeat = false;
             try {
@@ -35,18 +39,19 @@ public class HeartbeatThread extends Thread{
                 e.printStackTrace();
             }
         }
-        System.out.println("Did not received heartbeat for node: " + myip + myPort);
-        storageNodes.remove(myip + ":" + myPort);
-        removeNewNodeToHeartbeats(storageNodeInfo);
+        storageNodeMap.remove(ip + port);
+        //Inform all nodes that this node is removed
+        for(StorageNode node : storageNodeMap.values()){
+            node.addRemovedRingEntry(balancedHashRing.getEntryAtPos(position));
+        }
+        balancedHashRing.removeRingEntry(position);
+
+
+        System.out.println("Did not receive heartbeat remove this object");
     }
 
     public void setNewHeartBeat(){
         this.newHeartBeat = true;
     }
 
-    public void removeNewNodeToHeartbeats(StorageNodeInfo storageNodeInfo){
-        for(StorageNodeInfo node: storageNodes.values()){
-            node.addRemovedNode(storageNodeInfo);
-        }
-    }
 }

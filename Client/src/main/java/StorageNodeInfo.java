@@ -6,7 +6,6 @@ public class StorageNodeInfo {
     public StorageNodeInfo(String ip, int port, int id){
         this.ip = ip;
         this.port = port;
-
         this.id = id;
     }
 

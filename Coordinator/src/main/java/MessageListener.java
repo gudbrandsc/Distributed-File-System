@@ -1,6 +1,7 @@
+import Hash.BalancedHashRing;
+
 import java.io.IOException;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -10,18 +11,22 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class MessageListener extends Thread{
     private Socket socket;
-    private HashMap<String, StorageNodeInfo> storageNodeInfos;
+    private HashMap<String, StorageNode> storageNodeInfos;
     private AtomicInteger nodeId;
     private int totAvailableSpace;
     private int totRequestHandled;
+    private BalancedHashRing balancedHashRing;
+
 
     /**Constructor*/
-    MessageListener(Socket socket, HashMap<String,StorageNodeInfo> storageNodeInfos, AtomicInteger nodeId, int totRequestHandled, int totAvailableSpace) {
+    MessageListener(Socket socket, HashMap<String, StorageNode> storageNodeInfos, AtomicInteger nodeId, int totRequestHandled, int totAvailableSpace, BalancedHashRing balancedHashRing) {
         this.socket = socket;
         this.totAvailableSpace = totAvailableSpace;
         this.totRequestHandled = totRequestHandled;
         this.storageNodeInfos = storageNodeInfos;
         this.nodeId = nodeId;
+        this.balancedHashRing = balancedHashRing;
+
     }
 
     /**
@@ -39,18 +44,19 @@ public class MessageListener extends Thread{
             if(cordReceive.getType() == Clientproto.CordReceive.packetType.SYSTEM) {
                 System.out.println("System message");
 
-                SystemReportResponder systemReportResponder = new SystemReportResponder(socket, storageNodeInfos, totAvailableSpace, totRequestHandled);
+                SystemReportResponder systemReportResponder = new SystemReportResponder(socket, balancedHashRing);
                 systemReportResponder.start();
             } else if (cordReceive.getType() == Clientproto.CordReceive.packetType.JOIN){
-                System.out.println("Join request");
                 //todo Should be sync
-                StorageNodeJoinRequest storageNodeJoinRequest = new StorageNodeJoinRequest(socket, storageNodeInfos, cordReceive, nodeId);
+
+                StorageNodeJoinRequest storageNodeJoinRequest = new StorageNodeJoinRequest(socket, storageNodeInfos, cordReceive, nodeId, balancedHashRing);
                 storageNodeJoinRequest.start();
 
             }else if (cordReceive.getType() == Clientproto.CordReceive.packetType.HEARTBEAT){
-                StorageNodeInfo storageNodeInfo = storageNodeInfos.get(cordReceive.getIp() + cordReceive.getPort());
-                storageNodeInfo.setHeartbeatReceived();
-                HeartbeatResponder heartbeatResponder = new HeartbeatResponder(socket, storageNodeInfo);
+                StorageNode storageNode = storageNodeInfos.get(cordReceive.getIp() + cordReceive.getPort());
+                storageNode.setHeartbeatReceived();
+
+                HeartbeatResponder heartbeatResponder = new HeartbeatResponder(socket, storageNode, cordReceive);
                 heartbeatResponder.start();
             }
         }

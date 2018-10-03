@@ -1,9 +1,13 @@
+import Hash.BalancedHashRing;
+import Hash.HashRingEntry;
+import com.google.protobuf.ByteString;
+
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Map;
 
 /**
  * @author Gudbrand Schistad
@@ -11,30 +15,32 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class SystemReportResponder extends Thread{
     private Socket socket;
-    private HashMap<String,StorageNodeInfo> storageNodeInfos;
-    private int available_space;
-    private int request_handled;
+    private BalancedHashRing balancedHashRing;
+
 
     /**Constructor*/
-    SystemReportResponder(Socket socket, HashMap<String,StorageNodeInfo> storageNodeInfos, int available_space, int request_handled) {
+    SystemReportResponder(Socket socket, BalancedHashRing balancedHashRing) {
         this.socket = socket;
-        this.available_space = available_space;
-        this.request_handled = request_handled;
-        this.storageNodeInfos = storageNodeInfos;
+        this.balancedHashRing = balancedHashRing;
     }
 
     /**
      * Run method that prints the message and sends a reply
      */
     public void run() {
+
         ArrayList<Clientproto.NodeInfo> nodeInfos = new ArrayList<Clientproto.NodeInfo>();
 
-        for(StorageNodeInfo nodeInfo : storageNodeInfos.values()){
-            nodeInfos.add(Clientproto.NodeInfo.newBuilder().setIp(nodeInfo.getIp()).setPort(nodeInfo.getPort()).setId(nodeInfo.getId()).build());
+        ArrayList<HashRingEntry> hashRingEntries = new ArrayList<>(balancedHashRing.getEntryMap().values());
+        for(HashRingEntry entry : hashRingEntries){
+            Clientproto.BInteger.Builder builder = Clientproto.BInteger.newBuilder();
+            ByteString bytes = ByteString.copyFrom(entry.getPosition().toByteArray());
+            builder.setPosition(bytes);
+            nodeInfos.add(Clientproto.NodeInfo.newBuilder().setPosition(builder.build()).setIp(entry.getIp()).setPort(entry.getPort()).setId(entry.getNodeId()).setNeighbor(entry.getNeighbor().getNodeId()).build());
 
         }
 
-        Clientproto.CordResponse reply = Clientproto.CordResponse.newBuilder().setAvailSpace(this.available_space).setReqHandled(request_handled).addAllAllNodes(nodeInfos).build();
+        Clientproto.CordResponse reply = Clientproto.CordResponse.newBuilder().addAllNewNodes(nodeInfos).build();
         try {
             reply.writeDelimitedTo(socket.getOutputStream());
             socket.getOutputStream().flush();
@@ -43,6 +49,8 @@ public class SystemReportResponder extends Thread{
             e.printStackTrace();
         }
     }
+
+
 
 }
 

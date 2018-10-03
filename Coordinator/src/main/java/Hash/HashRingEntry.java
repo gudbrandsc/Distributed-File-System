@@ -14,14 +14,23 @@ public class HashRingEntry {
     /** Next neighboring node in the hash space */
     public HashRingEntry neighbor;
 
+    private int nodeId;
+
+    private String ip;
+
+    private int port;
+
     /**
      * Creates the first entry in a hash ring (neighbor is self).
      *
      * @param position the position of the entry in the hash space
      */
-    public HashRingEntry(BigInteger position) {
+    public HashRingEntry(BigInteger position, int nodeId, String ip, int port) {
         this.position = position;
         this.neighbor = this;
+        this.nodeId = nodeId;
+        this.ip = ip;
+        this.port = port;
     }
 
     /**
@@ -31,8 +40,32 @@ public class HashRingEntry {
      * @param neighbor neighboring entry (based on position) in the hash
      * space.
      */
-    public HashRingEntry(BigInteger position, HashRingEntry neighbor) {
+    public HashRingEntry(BigInteger position, HashRingEntry neighbor, int nodeId, String ip, int port) {
         this.position = position;
         this.neighbor = neighbor;
+        this.nodeId = nodeId;
+        this.ip = ip;
+        this.port = port;
     }
+
+    public BigInteger getPosition() {
+        return position;
+    }
+
+    public HashRingEntry getNeighbor() {
+        return neighbor;
+    }
+
+    public int getNodeId() {
+        return nodeId;
+    }
+
+    public String getIp() {
+        return ip;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
 }

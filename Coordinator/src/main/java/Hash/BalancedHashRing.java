@@ -21,6 +21,23 @@ public class BalancedHashRing<T> implements HashRing<T> {
     /** Maps hash ring positions to ring entries */
     protected TreeMap<BigInteger, HashRingEntry> entryMap = new TreeMap<>();
 
+    public TreeMap<BigInteger, HashRingEntry> getEntryMap() {
+        return entryMap;
+    }
+
+    public HashRingEntry getEntryAtPos(BigInteger position){
+        return entryMap.get(position);
+    }
+
+    private HashRingEntry getPredecessor(HashRingEntry entry){
+        for(HashRingEntry entry1 : entryMap.values()){
+            if (entry1.neighbor == entry){
+                return entry1;
+            }
+        }
+        return null;
+    }
+
     /**
      * Creates a BalancedHashRing using the provided hash function.  The
      * function will determine the size of the hash space and where nodes will
@@ -52,7 +69,7 @@ public class BalancedHashRing<T> implements HashRing<T> {
      * @param position place in the hash space
      * @param predecessor the predecessor node in the hash space.
      */
-    private void addRingEntry(BigInteger position, HashRingEntry predecessor)
+    private void addRingEntry(BigInteger position, HashRingEntry predecessor, int nodeId, String ip, int port)
     throws HashTopologyException {
         if (entryMap.get(position) != null) {
             /* Something is already here! */
@@ -61,22 +78,43 @@ public class BalancedHashRing<T> implements HashRing<T> {
         }
 
         HashRingEntry newEntry
-            = new HashRingEntry(position, predecessor.neighbor);
+            = new HashRingEntry(position, predecessor.neighbor, nodeId, ip, port);
         predecessor.neighbor = newEntry;
         entryMap.put(position, newEntry);
     }
 
     /**
+     * Insert a node into the hash ring internal data structures.  Nodes are
+     * relinked with the proper neighbors.
+     *
+     * @param position place in the hash space
+     */
+    public boolean removeRingEntry(BigInteger position){
+        HashRingEntry entry = entryMap.get(position);
+        HashRingEntry predecessor = getPredecessor(entry);
+
+        if (entry == null || predecessor == null) {
+            System.out.println("Unable to remove node");
+            return false;
+        }
+
+        predecessor.neighbor = entry.neighbor;
+        entryMap.remove(position);
+        System.out.println("Removed node with id: " + entry.getNodeId());
+        return true;
+    }
+
+    /**
      * Add a node to the overlay network topology.
      *
-     * @param data unused for this hash ring; nodes are placed evenly based on
+     * unused for this hash ring; nodes are placed evenly based on
      * current topology characteristics.  You may safely pass 'null' to this
      * method.
      *
      * @return the location of the new node in the hash space.
      */
     @Override
-    public BigInteger addNode(T data)
+    public BigInteger addNode(int nodeId, String ip, int port)
     throws HashTopologyException, HashException {
         /* Edge case: when there are no entries in the hash ring yet. */
         if (entryMap.values().size() == 0) {
@@ -88,8 +126,7 @@ public class BalancedHashRing<T> implements HashRing<T> {
             } else {
                 pos = BigInteger.ZERO;
             }
-
-            HashRingEntry firstEntry = new HashRingEntry(pos);
+            HashRingEntry firstEntry = new HashRingEntry(pos, nodeId, ip, port);
             entryMap.put(pos, firstEntry);
 
             return pos;
@@ -106,7 +143,7 @@ public class BalancedHashRing<T> implements HashRing<T> {
             }
 
             HashRingEntry secondEntry
-                = new HashRingEntry(secondPos, firstEntry);
+                = new HashRingEntry(secondPos, firstEntry, nodeId, ip, port);
             firstEntry.neighbor = secondEntry;
             entryMap.put(secondPos, secondEntry);
 
@@ -130,7 +167,7 @@ public class BalancedHashRing<T> implements HashRing<T> {
 
         /* Put the new node in the middle of the largest span */
         BigInteger half = half(largestEntry, largestEntry.neighbor);
-        addRingEntry(half, largestEntry);
+        addRingEntry(half, largestEntry, nodeId, ip, port);
         return half;
     }
 

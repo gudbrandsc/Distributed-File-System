@@ -1,18 +1,19 @@
 import com.google.protobuf.ByteString;
-import com.google.protobuf.InvalidProtocolBufferException;
 
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
 
 
 public class ClientServer {
     private static boolean running = true;
     private static ByteString byteString = ByteString.EMPTY;
-    private static HashMap<Integer, StorageNodeInfo> storageNodes = new HashMap<Integer, StorageNodeInfo>();
+    private static ArrayList<StorageNodeInfo> storageNodes = new ArrayList<>();
     private static int availableSpace = 0;
     private static int requestsHandled = 0;
+    private static Random randomGenerator;
 
 
     public static void main(String[] args) {
@@ -34,16 +35,52 @@ public class ClientServer {
             if (command.trim().equalsIgnoreCase("help")) {
                 listCommands();
             } else if (command.trim().equalsIgnoreCase("Send")) {
-                sendMessage();
+                storeFile();
             } else if (command.trim().equalsIgnoreCase("System")) {
                 getSystemReport();
                 printSystemReport();
             } else if (command.trim().equalsIgnoreCase("read")) {
+                //Todo Read from command
+                retrieveFile();
+            } else if (command.trim().equalsIgnoreCase("ls")) {
+                    displayFilesInSystem();
             } else if (command.trim().equalsIgnoreCase("Exit")) {
                 System.out.println("Bye =)");
                 System.exit(1);
             }
         }
+    }
+
+    private static void displayFilesInSystem(){
+        Socket socket = null;
+        Clientproto.SNReceive message = Clientproto.SNReceive.newBuilder().setType(Clientproto.SNReceive.packetType.SYSTEM).build();
+        try {
+            StorageNodeInfo node = getRandomNode();
+            socket = new Socket(node.getIp(), node.getPort());
+            InputStream instream = socket.getInputStream();
+            OutputStream outstream = socket.getOutputStream();
+            message.writeDelimitedTo(outstream);
+            Clientproto.SNReceive reply = Clientproto.SNReceive.parseDelimitedFrom(instream);
+            System.out.println("-------Available files in cluster--------");
+
+            for(String filename: reply.getNodeFilesList()){
+                System.out.println(filename);
+            }
+
+            System.out.println("-----------------------------------------");
+
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void retrieveFile(){
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Enter filename with path...:");
+        String filename = sc.nextLine();
+        RetrieveDataManager systemReportResponder = new RetrieveDataManager( filename, storageNodes);
+        systemReportResponder.start();
     }
 
     private static void getSystemReport(){
@@ -54,14 +91,15 @@ public class ClientServer {
             socket = new Socket("localhost", 5001);
             InputStream instream = socket.getInputStream();
             OutputStream outstream = socket.getOutputStream();
+
             Clientproto.CordReceive message = Clientproto.CordReceive.newBuilder().setType(Clientproto.CordReceive.packetType.SYSTEM).build();
             message.writeDelimitedTo(outstream);
             reply = Clientproto.CordResponse.parseDelimitedFrom(instream);
             availableSpace = reply.getAvailSpace();
             requestsHandled = reply.getReqHandled();
             storageNodes.clear();
-            for(Clientproto.NodeInfo nodeInfo : reply.getStorageNodesList()){
-                storageNodes.put(nodeInfo.getId(), new StorageNodeInfo(nodeInfo.getIp(),nodeInfo.getPort(),nodeInfo.getId()));
+            for(Clientproto.NodeInfo nodeInfo : reply.getAllNodesList()){
+                storageNodes.add(new StorageNodeInfo(nodeInfo.getIp(), nodeInfo.getPort(), nodeInfo.getId()));
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -75,8 +113,7 @@ public class ClientServer {
         System.out.println("| Space available:  " + availableSpace + " GB");
         System.out.println("| Request handled: " + requestsHandled);
         System.out.println("| Available storage nodes: ");
-        for(int key: storageNodes.keySet()){
-            StorageNodeInfo node = storageNodes.get(key);
+        for(StorageNodeInfo node: storageNodes){
             System.out.println("|\tID: "+ node.getId() + " --> " +node.getIp() + ":" + node.getPort());
         }
         System.out.println(" ---------------------------------------------------------------------");
@@ -84,88 +121,77 @@ public class ClientServer {
 
 
 
-    private static void sendMessage() {
+    private static void storeFile() {
         Scanner sc = new Scanner(System.in);
         System.out.println("Enter filename with path...:");
         String filename = sc.nextLine();
-        File file = new File("/Users/gudbrandschistad/IdeaProjects/CS677-project1/Client/src/main/java/" + filename);
-        // Get length of file in bytes
-        long fileSizeInBytes = file.length();
-        // Convert the bytes to Kilobytes (1 KB = 1024 Bytes)
-        long fileSizeInKB = fileSizeInBytes / 1024;
-        // Convert the KB to MegaBytes (1 MB = 1024 KBytes)
-        long fileSizeInMB = fileSizeInKB / 1024;
-
+        File file = new File("/Users/gudbrandschistad/IdeaProjects/P1-gudbrandsc/Client/src/main/java/" + filename);
         byte[] bytearray = readFileToByteArray(file);
         System.out.println("Size of file: " + file.length() + " array size: " + file.length());
-        createFileChunks(bytearray, filename);
 
+        randomGenerator = new Random();
+        System.out.println(storageNodes.size() + " node list size");
+        ArrayList<Clientproto.SNReceive> chunkArray = createFileChunks(bytearray, filename);
+        CountDownLatch latch = new CountDownLatch(chunkArray.size());
+        for(Clientproto.SNReceive chunkData : chunkArray ){
+            int random = randomGenerator.nextInt(storageNodes.size());
+            StorageNodeInfo storageNode = storageNodes.get(random);
+            DataStorageThread dataStorageThread = new DataStorageThread(storageNode, chunkData,latch);
+            dataStorageThread.start();
+        }
+
+        try {
+            latch.await();
+            broadCastNewFile(filename);
+            System.out.println("File was successfully stored");
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
-    private static void createFileChunks(byte[] bytearray, String filename) {
+    private static void broadCastNewFile(String filename){
+        Clientproto.SNReceive broadcastMessage = Clientproto.SNReceive.newBuilder().setType(Clientproto.SNReceive.packetType.BROADCAST).setSendBroadCast(true).setFileData(Clientproto.FileData.newBuilder().setFilename(filename).build()).build();
+        CountDownLatch latch = new CountDownLatch(1);
+        StorageNodeInfo storageNode = getRandomNode();
+        DataStorageThread dataStorageThread = new DataStorageThread(storageNode, broadcastMessage,latch);
+        dataStorageThread.start();
+    }
+
+    private static ArrayList<Clientproto.SNReceive> createFileChunks(byte[] bytearray, String filename) {
         int start = 0;
         int packetNo = 1;
         int packetSize = 0;
-        List<Clientproto.SNReceive> superArray = new ArrayList<Clientproto.SNReceive>();
+        ArrayList<Clientproto.SNReceive> chunkArray = new ArrayList<Clientproto.SNReceive>();
+        int numberOfChunks = (int) Math.ceil(bytearray.length / (double) 32);
         for (int i = 0; i <= bytearray.length; i++) {
 
             if ((((i + 1) % 32) == 0) && (i != 0)) {
-                System.out.println("Range: " + start +" - " + i);
+               // System.out.println("Range: " + start +" - " + i);
                 byte[] testArray = Arrays.copyOfRange(bytearray, start, i);
-                Clientproto.SNReceive storeChunk = Clientproto.SNReceive.newBuilder().setData(ByteString.copyFrom(testArray)).setChunkNo(packetNo).setIsLast(false).setFilename(filename).build();
-                superArray.add(storeChunk);
+                Clientproto.FileData fileData = Clientproto.FileData.newBuilder().setData(ByteString.copyFrom(testArray)).setChunkNo(packetNo).setFilename(filename).setNumChunks(numberOfChunks).setReplicaNum(1).build();
+                Clientproto.SNReceive storeChunk = Clientproto.SNReceive.newBuilder().setType(Clientproto.SNReceive.packetType.STORE).setFileData(fileData).setFileExist(true).build();
+                chunkArray.add(storeChunk);
                 start = i ;
                // System.out.println("Created packet with packet number: " + packetNo);
                 packetNo++;
                 packetSize = 0;
             } else if (i == bytearray.length) {
-                System.out.println("Range: " + start +" - " + i);
+               // System.out.println("Range: " + start +" - " + i);
 
                 System.out.println("Created packet with packet number: " + packetNo);
                 System.out.println("Size = " + packetSize);
                 System.out.println("Packet size: " + packetSize);
                 byte[] testArray = Arrays.copyOfRange(bytearray, start, i);
-                Clientproto.SNReceive storeChunk = Clientproto.SNReceive.newBuilder().setData(ByteString.copyFrom(testArray)).setChunkNo(packetNo).setIsLast(true).setFilename(filename).build();
-                superArray.add(storeChunk);
+                Clientproto.FileData fileData = Clientproto.FileData.newBuilder().setData(ByteString.copyFrom(testArray)).setChunkNo(packetNo).setFilename(filename).setNumChunks(numberOfChunks).setReplicaNum(1).build();
+                Clientproto.SNReceive storeChunk = Clientproto.SNReceive.newBuilder().setType(Clientproto.SNReceive.packetType.STORE).setFileData(fileData).setFileExist(true).build();
+                chunkArray.add(storeChunk);
             } else {
                 packetSize++;
             }
         }
+        System.out.println("Total number of chunks created: " + numberOfChunks);
+        return chunkArray;
 
-        boolean isLast = false;
-        int chunkNumber = 1;
-
-        while (!isLast) {
-            Clientproto.SNReceive packet = getByteStringNumber(chunkNumber, superArray);
-            byteString = byteString.concat(packet.getData());
-            if(packet.getIsLast()){
-                isLast = true;
-                byte[] finish = byteString.toByteArray();
-                System.out.println("Writing to a file : out" + packet.getFilename());
-                try {
-                    FileOutputStream oi = new FileOutputStream("/Users/gudbrandschistad/IdeaProjects/CS677-project1/Client/src/main/java/out" + packet.getFilename());
-                    try {
-                        oi.write(finish);
-                        System.out.println("Done writing");
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
-            }
-            chunkNumber++;
-        }
-    }
-
-    private static Clientproto.SNReceive getByteStringNumber(int chunckNumber, List<Clientproto.SNReceive> superArray) {
-        for (Clientproto.SNReceive packet : superArray) {
-            if (packet.getChunkNo() == chunckNumber) {
-                return packet;
-            }
-        }
-        System.out.println("Unable to find: " + chunckNumber);
-        return null;
     }
 
 
@@ -201,5 +227,11 @@ public class ClientServer {
         System.out.println("-- List --  Display all other users.");
         System.out.println("-- Read -- Display all received broadcast messages.");
         System.out.println("-- Send -- Send a message to a user.");
+    }
+
+    private static StorageNodeInfo getRandomNode(){
+        randomGenerator = new Random();
+        int random = randomGenerator.nextInt(storageNodes.size());
+        return storageNodes.get(random);
     }
 }

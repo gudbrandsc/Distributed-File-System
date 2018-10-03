@@ -5,12 +5,28 @@ syntax = "proto3";
 
 //Message that the storage node gets from client.
 message SNReceive {
-    bytes data = 1;
-    int32 chunk_no = 2;
-    int32 num_chunks = 3;
-    string filename = 4;
-    packetType type = 5;
-    bool is_last = 6;
+    FileData fileData = 1;
+    packetType type = 2;
+    bool fileExist = 3;
+    bool sendBroadCast = 4;
+    repeated string node_files = 5;
+    bool success = 6;
+
+    enum packetType {
+        STORE = 0;
+        RETRIEVE = 1;
+        SYSTEM = 2;
+        BROADCAST = 3;
+        PIPELINE = 4;
+    }
+}
+
+
+// Message type the storage node reply with
+message SNSend {
+    FileData fileData = 1;
+    packetType type = 2;
+    repeated string node_files = 3;
 
     enum packetType {
         STORE = 0;
@@ -19,22 +35,12 @@ message SNReceive {
     }
 }
 
-
-// Message type the storage node reply with
-message SNSend {
+message FileData {
     bytes data = 1;
     int32 chunk_no = 2;
     int32 num_chunks = 3;
     string filename = 4;
-    packetType type = 5;
-    bool is_last = 6;
-    repeated string node_files = 9;
-
-    enum packetType {
-        STORE = 0;
-        RETRIEVE = 1;
-        SYSTEM = 2;
-    }
+    int32 replicaNum = 5;
 }
 
 message CordReceive {
@@ -59,10 +65,8 @@ message CordResponse {
     int32 req_handled = 5;
     repeated NodeInfo new_nodes = 6;
     repeated NodeInfo removed_nodes = 7;
-    repeated NodeInfo all_nodes = 9;
-
-    int32 nodeId = 10;
-    packetType type = 11;
+    int32 nodeId = 8;
+    packetType type = 9;
 
 
     enum packetType {
@@ -70,9 +74,8 @@ message CordResponse {
         SYSTEM = 1;
         HEARTBEAT = 2;
     }
-
-
 }
+
 
 
 // Message sent to cordinator from client to get system info.
@@ -90,16 +93,13 @@ message CordResponse {
 
 
 message ClientReceiveData {
-    bytes data = 1;
-    int32 chunk_no = 2;
-    int32 num_chunks = 3;
-    string filename = 4;
-    int32 port = 5;
-    string ip = 6;
-    repeated NodeInfo node_info = 7;
-    int32 avail_space = 8;
-    repeated string node_files = 9;
-    packetType type = 10;
+    FileData fileData = 1;
+    int32 port = 2;
+    string ip = 3;
+    repeated NodeInfo node_info = 4;
+    int32 avail_space = 5;
+    repeated string node_files = 6;
+    packetType type = 7;
 
 
     enum packetType {
@@ -120,5 +120,11 @@ message NodeInfo{
     int32 id = 1;
     string ip = 3;
     int32 port = 4;
+    BInteger position = 5;
+    int32 neighbor = 6;
+
 }
 
+message BInteger {
+    bytes position = 1;
+}
