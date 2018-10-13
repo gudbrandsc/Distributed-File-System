@@ -1,19 +1,11 @@
-
-
-
 import Hash.BalancedHashRing;
 import Hash.HashException;
 import Hash.HashRingEntry;
-import Hash.SHA1;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.math.BigInteger;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.HashMap;
+
 
 
 public class StoreRequestThread extends Thread {
@@ -21,17 +13,15 @@ public class StoreRequestThread extends Thread {
     private Clientproto.SNReceive chunk;
     private BalancedHashRing balancedHashRing;
     private int nodeId;
-    private HashMap<String, Clientproto.SNReceive> dataStorage;
-    private ArrayList<String> filesInSystem;
+    private SystemDataStore systemDataStore;
 
     /** Constructor */
-    public StoreRequestThread(Socket socket, Clientproto.SNReceive chunk, BalancedHashRing balancedHashRing, int nodeId,HashMap<String, Clientproto.SNReceive> dataStorage,ArrayList<String> filesInSystem) {
+    public StoreRequestThread(Socket socket, Clientproto.SNReceive chunk, BalancedHashRing balancedHashRing, int nodeId,SystemDataStore systemDataStore) {
         this.socket = socket;
         this.chunk = chunk;
         this.balancedHashRing = balancedHashRing;
         this.nodeId = nodeId;
-        this.dataStorage = dataStorage;
-        this.filesInSystem = filesInSystem;
+        this.systemDataStore = systemDataStore;
 
     }
 
@@ -51,7 +41,8 @@ public class StoreRequestThread extends Thread {
                 Clientproto.SNReceive reply = null;
                 String key = chunk.getFileData().getFilename() + chunk.getFileData().getChunkNo() + chunk.getFileData().getReplicaNum();
                 if(replicateChunk()){
-                    dataStorage.put(key, chunk);
+                    systemDataStore.addDataStore(key, chunk);
+                    writeDataToStorage(chunk);
                     reply = Clientproto.SNReceive.newBuilder().setType(Clientproto.SNReceive.packetType.STORE).setSuccess(true).build();
                 }else{
                     System.out.println("Unable to replicate successfully");
@@ -61,7 +52,6 @@ public class StoreRequestThread extends Thread {
                 reply.writeDelimitedTo(outstream);
 
             }else{
-                System.out.println("Data should be store on node: " + entry.getNodeId() + " location node says --> " + node);
                 Socket nodeSocket = new Socket(entry.getIp(), entry.getPort());
                 InputStream instream = nodeSocket.getInputStream();
                 OutputStream outstream = nodeSocket.getOutputStream();
@@ -115,6 +105,38 @@ public class StoreRequestThread extends Thread {
         Clientproto.FileData newFileData = Clientproto.FileData.newBuilder().setData(fileData.getData()).setChunkNo(fileData.getChunkNo())
                 .setNumChunks(fileData.getNumChunks()).setFilename(fileData.getFilename()).setReplicaNum(2).build();
         return Clientproto.SNReceive.newBuilder().setFileData(newFileData).setType(Clientproto.SNReceive.packetType.PIPELINE).build();
+    }
+
+    private boolean writeDataToStorage(Clientproto.SNReceive data){
+
+        try {
+            String filename = data.getFileData().getFilename() + "-" + data.getFileData().getChunkNo() + "-" + data.getFileData().getReplicaNum();
+            File dataFile = new File("./DataStorage" + nodeId + "/" + filename);
+            File dataChecksumFile = new File("./DataStorage" + nodeId + "/" + filename + "-checksum");
+            byte[] dataToStore = data.getFileData().getData().toByteArray();
+            if (dataFile.exists()) {
+                dataFile.delete();
+            }
+
+            if (dataChecksumFile.exists()) {
+                dataChecksumFile.delete();
+            }
+
+            dataFile.createNewFile();
+            dataChecksumFile.createNewFile();
+
+            FileOutputStream oi = new FileOutputStream(dataFile);
+            oi.write(dataToStore);
+
+            FileOutputStream checksumWrite = new FileOutputStream(dataChecksumFile);
+            checksumWrite.write(dataToStore);
+
+            System.out.println("File was successfully written");
+        } catch (IOException e) {
+            System.out.println("Unable to build file..");
+            e.printStackTrace();
+        }
+        return true;
     }
 
 }

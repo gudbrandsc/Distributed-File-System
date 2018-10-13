@@ -1,6 +1,7 @@
 import Hash.*;
 import com.google.protobuf.ByteString;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -22,13 +23,9 @@ public class StorageNodeServer {
     private static int  port;
     private static int  coordPort;
     private static String  coordIp;
-    private static int totAvailableSpace = 0;
-    private static int totRequestsHandled = 0;
     private static HashMap<String, StorageNodeInfo> storageNodeInfoHashMap = new HashMap<String, StorageNodeInfo>();
     private static BalancedHashRing balancedHashRing;
-    private static volatile HashMap<String, Clientproto.SNReceive> dataStore = new HashMap<>();
-    private static volatile ArrayList<String> filesInSystem = new ArrayList<>();
-
+    private static SystemDataStore systemDataStore;
 
     public static void main(String[] args) throws UnknownHostException {
 
@@ -41,6 +38,7 @@ public class StorageNodeServer {
             System.out.println("Found: " + args[0] + " " + args[1] + " " + args[2] + " " + args[3] + " " + args[4] + " " + args[5]);
             System.exit(0);
         }
+
         port = Integer.parseInt(args[1]);
         coordIp = args[3];
         coordPort = Integer.parseInt(args[5]);
@@ -60,38 +58,37 @@ public class StorageNodeServer {
         balancedHashRing = new BalancedHashRing(sha1);
 
         Clientproto.CordResponse reply = sendJoinRequest();
+
         if(!reply.getCanJoin()){
             System.exit(1);
         }
 
         nodeId = reply.getNodeId();
         System.out.println("Joined cluster with id: " + nodeId);
-
-        //Create hashring
-
-
-        readMessages(serve, storageNodeInfoHashMap, totRequestsHandled, totAvailableSpace, nodeId, dataStore, filesInSystem);
-        //TODO fix static input
-        HearbeatThread hearbeatThread = new HearbeatThread(coordIp, coordPort, "127.0.0.1", port, storageNodeInfoHashMap, balancedHashRing, nodeId, dataStore, filesInSystem);
+        systemDataStore = new SystemDataStore();
+        createStorageDir();
+        readMessages(serve, storageNodeInfoHashMap, nodeId, systemDataStore);
+        HearbeatThread hearbeatThread = new HearbeatThread(coordIp, coordPort, "127.0.0.1", port, storageNodeInfoHashMap,
+                balancedHashRing, nodeId, systemDataStore);
         hearbeatThread.start();
 
         for(int i = 0; i < 100; i++){
             System.out.println("------------My data-------------");
-          /*  for(Clientproto.SNReceive data: dataStore.values()){
+            for(Clientproto.SNReceive data: systemDataStore.getDataStoreCopy().values()){
                 if(data.getFileData().getReplicaNum() == 1){
                     System.out.println("I have first Chunk " + data.getFileData().getChunkNo());
 
                 }
 
             }
-            for(Clientproto.SNReceive data: dataStore.values()) {
+            for(Clientproto.SNReceive data: systemDataStore.getDataStoreCopy().values()) {
                 System.out.println("Chunk: " + data.getFileData().getChunkNo() + " replica: " + data.getFileData().getReplicaNum());
-            }*/
-
+            }
+/*
           ArrayList<HashRingEntry> hashRingEntries = new ArrayList<>(balancedHashRing.getEntryMap().values());
             for(HashRingEntry entry : hashRingEntries){
                 System.out.println(entry.getIp() + ":" + entry.getPort() + " id " +entry.getNodeId() + " Neigborid " + entry.neighbor.getNodeId() + " --> " + entry.getPosition());
-            }
+            }*/
 
             System.out.println("-------------------------");
             try {
@@ -103,21 +100,38 @@ public class StorageNodeServer {
         }
     }
 
-    /**
-     * Method that runs in separate thread from main and waits for incoming messages at a port.
-     * If a message is recived it creates a new thread to handle it and continues to listen for new messages
-     * @param serve ServerSocket object
-     * @param filesInSystem
-     */
-    private static void readMessages(final ServerSocket serve, final HashMap<String, StorageNodeInfo> storageNodeInfos, final int totRequestsHandled, final int totAvailableSpace, int nodeId, HashMap<String, Clientproto.SNReceive> dataStorage, ArrayList<String> filesInSystem){
+    private static boolean createStorageDir(){
+        System.out.println("Trying to make dir");
+        File theDir = new File("./DataStorage" + nodeId);
+        if (!theDir.exists()) {
+            System.out.println("creating directory: " + theDir.getName());
+            boolean result = false;
+
+            try{
+                theDir.mkdir();
+                result = true;
+            }
+            catch(SecurityException se){
+                System.out.println("Unable to create storage directory");
+            }
+            if(result) {
+                System.out.println("DIR created");
+            }
+            return result;
+        }
+        System.out.println("Dir exist");
+        return true;
+    }
+
+
+    private static void readMessages(final ServerSocket serve, final HashMap<String, StorageNodeInfo> storageNodeInfos, final int nodeId, final SystemDataStore systemDataStore){
         final Runnable run = new Runnable() {
             public void run() {
                 try {
                     while(running) {
                         Socket sock = serve.accept();
                         //Create thread to handle request
-
-                        MessageListener messageListener = new MessageListener(sock, storageNodeInfos, nodeId, balancedHashRing, dataStore, filesInSystem);
+                        MessageListener messageListener = new MessageListener(sock, storageNodeInfos, nodeId, balancedHashRing, systemDataStore);
                         messageListener.start();
                     }
                 } catch(IOException ioe) {
@@ -156,14 +170,14 @@ public class StorageNodeServer {
 
 
     private static void addAllNodes(Clientproto.CordResponse reply) throws HashTopologyException {
-        TreeMap<BigInteger, Clientproto.NodeInfo> funnymap = new TreeMap<>();
+        TreeMap<BigInteger, Clientproto.NodeInfo> tempMap = new TreeMap<>();
 
         for( Clientproto.NodeInfo node: reply.getNewNodesList()) {
             ByteString bytes = node.getPosition().getPosition();
             BigInteger position = new BigInteger(bytes.toByteArray());
-            funnymap.put(position, node);
+            tempMap.put(position, node);
         }
-        for(Map.Entry<BigInteger,Clientproto.NodeInfo> entry : funnymap.entrySet()) {
+        for(Map.Entry<BigInteger,Clientproto.NodeInfo> entry : tempMap.entrySet()) {
             BigInteger key = entry.getKey();
             Clientproto.NodeInfo value = entry.getValue();
             try {

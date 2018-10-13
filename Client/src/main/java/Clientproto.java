@@ -68,7 +68,31 @@ public final class Clientproto {
         getNodeFilesBytes(int index);
 
     /**
-     * <code>bool success = 6;</code>
+     * <code>repeated .FileData chunk_list = 6;</code>
+     */
+    java.util.List<Clientproto.FileData> 
+        getChunkListList();
+    /**
+     * <code>repeated .FileData chunk_list = 6;</code>
+     */
+    Clientproto.FileData getChunkList(int index);
+    /**
+     * <code>repeated .FileData chunk_list = 6;</code>
+     */
+    int getChunkListCount();
+    /**
+     * <code>repeated .FileData chunk_list = 6;</code>
+     */
+    java.util.List<? extends Clientproto.FileDataOrBuilder> 
+        getChunkListOrBuilderList();
+    /**
+     * <code>repeated .FileData chunk_list = 6;</code>
+     */
+    Clientproto.FileDataOrBuilder getChunkListOrBuilder(
+        int index);
+
+    /**
+     * <code>bool success = 7;</code>
      */
     boolean getSuccess();
   }
@@ -93,6 +117,7 @@ public final class Clientproto {
       fileExist_ = false;
       sendBroadCast_ = false;
       nodeFiles_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      chunkList_ = java.util.Collections.emptyList();
       success_ = false;
     }
 
@@ -165,7 +190,16 @@ public final class Clientproto {
               nodeFiles_.add(s);
               break;
             }
-            case 48: {
+            case 50: {
+              if (!((mutable_bitField0_ & 0x00000020) == 0x00000020)) {
+                chunkList_ = new java.util.ArrayList<Clientproto.FileData>();
+                mutable_bitField0_ |= 0x00000020;
+              }
+              chunkList_.add(
+                  input.readMessage(Clientproto.FileData.parser(), extensionRegistry));
+              break;
+            }
+            case 56: {
 
               success_ = input.readBool();
               break;
@@ -180,6 +214,9 @@ public final class Clientproto {
       } finally {
         if (((mutable_bitField0_ & 0x00000010) == 0x00000010)) {
           nodeFiles_ = nodeFiles_.getUnmodifiableView();
+        }
+        if (((mutable_bitField0_ & 0x00000020) == 0x00000020)) {
+          chunkList_ = java.util.Collections.unmodifiableList(chunkList_);
         }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -222,6 +259,14 @@ public final class Clientproto {
        * <code>PIPELINE = 4;</code>
        */
       PIPELINE(4),
+      /**
+       * <code>CHECKSUM = 5;</code>
+       */
+      CHECKSUM(5),
+      /**
+       * <code>RECOVER = 6;</code>
+       */
+      RECOVER(6),
       UNRECOGNIZED(-1),
       ;
 
@@ -245,6 +290,14 @@ public final class Clientproto {
        * <code>PIPELINE = 4;</code>
        */
       public static final int PIPELINE_VALUE = 4;
+      /**
+       * <code>CHECKSUM = 5;</code>
+       */
+      public static final int CHECKSUM_VALUE = 5;
+      /**
+       * <code>RECOVER = 6;</code>
+       */
+      public static final int RECOVER_VALUE = 6;
 
 
       public final int getNumber() {
@@ -270,6 +323,8 @@ public final class Clientproto {
           case 2: return SYSTEM;
           case 3: return BROADCAST;
           case 4: return PIPELINE;
+          case 5: return CHECKSUM;
+          case 6: return RECOVER;
           default: return null;
         }
       }
@@ -407,10 +462,45 @@ public final class Clientproto {
       return nodeFiles_.getByteString(index);
     }
 
-    public static final int SUCCESS_FIELD_NUMBER = 6;
+    public static final int CHUNK_LIST_FIELD_NUMBER = 6;
+    private java.util.List<Clientproto.FileData> chunkList_;
+    /**
+     * <code>repeated .FileData chunk_list = 6;</code>
+     */
+    public java.util.List<Clientproto.FileData> getChunkListList() {
+      return chunkList_;
+    }
+    /**
+     * <code>repeated .FileData chunk_list = 6;</code>
+     */
+    public java.util.List<? extends Clientproto.FileDataOrBuilder> 
+        getChunkListOrBuilderList() {
+      return chunkList_;
+    }
+    /**
+     * <code>repeated .FileData chunk_list = 6;</code>
+     */
+    public int getChunkListCount() {
+      return chunkList_.size();
+    }
+    /**
+     * <code>repeated .FileData chunk_list = 6;</code>
+     */
+    public Clientproto.FileData getChunkList(int index) {
+      return chunkList_.get(index);
+    }
+    /**
+     * <code>repeated .FileData chunk_list = 6;</code>
+     */
+    public Clientproto.FileDataOrBuilder getChunkListOrBuilder(
+        int index) {
+      return chunkList_.get(index);
+    }
+
+    public static final int SUCCESS_FIELD_NUMBER = 7;
     private boolean success_;
     /**
-     * <code>bool success = 6;</code>
+     * <code>bool success = 7;</code>
      */
     public boolean getSuccess() {
       return success_;
@@ -443,8 +533,11 @@ public final class Clientproto {
       for (int i = 0; i < nodeFiles_.size(); i++) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 5, nodeFiles_.getRaw(i));
       }
+      for (int i = 0; i < chunkList_.size(); i++) {
+        output.writeMessage(6, chunkList_.get(i));
+      }
       if (success_ != false) {
-        output.writeBool(6, success_);
+        output.writeBool(7, success_);
       }
       unknownFields.writeTo(output);
     }
@@ -478,9 +571,13 @@ public final class Clientproto {
         size += dataSize;
         size += 1 * getNodeFilesList().size();
       }
+      for (int i = 0; i < chunkList_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(6, chunkList_.get(i));
+      }
       if (success_ != false) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(6, success_);
+          .computeBoolSize(7, success_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -510,6 +607,8 @@ public final class Clientproto {
           == other.getSendBroadCast());
       result = result && getNodeFilesList()
           .equals(other.getNodeFilesList());
+      result = result && getChunkListList()
+          .equals(other.getChunkListList());
       result = result && (getSuccess()
           == other.getSuccess());
       result = result && unknownFields.equals(other.unknownFields);
@@ -538,6 +637,10 @@ public final class Clientproto {
       if (getNodeFilesCount() > 0) {
         hash = (37 * hash) + NODE_FILES_FIELD_NUMBER;
         hash = (53 * hash) + getNodeFilesList().hashCode();
+      }
+      if (getChunkListCount() > 0) {
+        hash = (37 * hash) + CHUNK_LIST_FIELD_NUMBER;
+        hash = (53 * hash) + getChunkListList().hashCode();
       }
       hash = (37 * hash) + SUCCESS_FIELD_NUMBER;
       hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
@@ -671,6 +774,7 @@ public final class Clientproto {
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessageV3
                 .alwaysUseFieldBuilders) {
+          getChunkListFieldBuilder();
         }
       }
       public Builder clear() {
@@ -689,6 +793,12 @@ public final class Clientproto {
 
         nodeFiles_ = com.google.protobuf.LazyStringArrayList.EMPTY;
         bitField0_ = (bitField0_ & ~0x00000010);
+        if (chunkListBuilder_ == null) {
+          chunkList_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000020);
+        } else {
+          chunkListBuilder_.clear();
+        }
         success_ = false;
 
         return this;
@@ -728,6 +838,15 @@ public final class Clientproto {
           bitField0_ = (bitField0_ & ~0x00000010);
         }
         result.nodeFiles_ = nodeFiles_;
+        if (chunkListBuilder_ == null) {
+          if (((bitField0_ & 0x00000020) == 0x00000020)) {
+            chunkList_ = java.util.Collections.unmodifiableList(chunkList_);
+            bitField0_ = (bitField0_ & ~0x00000020);
+          }
+          result.chunkList_ = chunkList_;
+        } else {
+          result.chunkList_ = chunkListBuilder_.build();
+        }
         result.success_ = success_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
@@ -792,6 +911,32 @@ public final class Clientproto {
             nodeFiles_.addAll(other.nodeFiles_);
           }
           onChanged();
+        }
+        if (chunkListBuilder_ == null) {
+          if (!other.chunkList_.isEmpty()) {
+            if (chunkList_.isEmpty()) {
+              chunkList_ = other.chunkList_;
+              bitField0_ = (bitField0_ & ~0x00000020);
+            } else {
+              ensureChunkListIsMutable();
+              chunkList_.addAll(other.chunkList_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.chunkList_.isEmpty()) {
+            if (chunkListBuilder_.isEmpty()) {
+              chunkListBuilder_.dispose();
+              chunkListBuilder_ = null;
+              chunkList_ = other.chunkList_;
+              bitField0_ = (bitField0_ & ~0x00000020);
+              chunkListBuilder_ = 
+                com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
+                   getChunkListFieldBuilder() : null;
+            } else {
+              chunkListBuilder_.addAllMessages(other.chunkList_);
+            }
+          }
         }
         if (other.getSuccess() != false) {
           setSuccess(other.getSuccess());
@@ -1131,15 +1276,255 @@ public final class Clientproto {
         return this;
       }
 
+      private java.util.List<Clientproto.FileData> chunkList_ =
+        java.util.Collections.emptyList();
+      private void ensureChunkListIsMutable() {
+        if (!((bitField0_ & 0x00000020) == 0x00000020)) {
+          chunkList_ = new java.util.ArrayList<Clientproto.FileData>(chunkList_);
+          bitField0_ |= 0x00000020;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilderV3<
+          Clientproto.FileData, Clientproto.FileData.Builder, Clientproto.FileDataOrBuilder> chunkListBuilder_;
+
+      /**
+       * <code>repeated .FileData chunk_list = 6;</code>
+       */
+      public java.util.List<Clientproto.FileData> getChunkListList() {
+        if (chunkListBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(chunkList_);
+        } else {
+          return chunkListBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <code>repeated .FileData chunk_list = 6;</code>
+       */
+      public int getChunkListCount() {
+        if (chunkListBuilder_ == null) {
+          return chunkList_.size();
+        } else {
+          return chunkListBuilder_.getCount();
+        }
+      }
+      /**
+       * <code>repeated .FileData chunk_list = 6;</code>
+       */
+      public Clientproto.FileData getChunkList(int index) {
+        if (chunkListBuilder_ == null) {
+          return chunkList_.get(index);
+        } else {
+          return chunkListBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <code>repeated .FileData chunk_list = 6;</code>
+       */
+      public Builder setChunkList(
+          int index, Clientproto.FileData value) {
+        if (chunkListBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureChunkListIsMutable();
+          chunkList_.set(index, value);
+          onChanged();
+        } else {
+          chunkListBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .FileData chunk_list = 6;</code>
+       */
+      public Builder setChunkList(
+          int index, Clientproto.FileData.Builder builderForValue) {
+        if (chunkListBuilder_ == null) {
+          ensureChunkListIsMutable();
+          chunkList_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          chunkListBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .FileData chunk_list = 6;</code>
+       */
+      public Builder addChunkList(Clientproto.FileData value) {
+        if (chunkListBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureChunkListIsMutable();
+          chunkList_.add(value);
+          onChanged();
+        } else {
+          chunkListBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .FileData chunk_list = 6;</code>
+       */
+      public Builder addChunkList(
+          int index, Clientproto.FileData value) {
+        if (chunkListBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureChunkListIsMutable();
+          chunkList_.add(index, value);
+          onChanged();
+        } else {
+          chunkListBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .FileData chunk_list = 6;</code>
+       */
+      public Builder addChunkList(
+          Clientproto.FileData.Builder builderForValue) {
+        if (chunkListBuilder_ == null) {
+          ensureChunkListIsMutable();
+          chunkList_.add(builderForValue.build());
+          onChanged();
+        } else {
+          chunkListBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .FileData chunk_list = 6;</code>
+       */
+      public Builder addChunkList(
+          int index, Clientproto.FileData.Builder builderForValue) {
+        if (chunkListBuilder_ == null) {
+          ensureChunkListIsMutable();
+          chunkList_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          chunkListBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .FileData chunk_list = 6;</code>
+       */
+      public Builder addAllChunkList(
+          java.lang.Iterable<? extends Clientproto.FileData> values) {
+        if (chunkListBuilder_ == null) {
+          ensureChunkListIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, chunkList_);
+          onChanged();
+        } else {
+          chunkListBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .FileData chunk_list = 6;</code>
+       */
+      public Builder clearChunkList() {
+        if (chunkListBuilder_ == null) {
+          chunkList_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000020);
+          onChanged();
+        } else {
+          chunkListBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .FileData chunk_list = 6;</code>
+       */
+      public Builder removeChunkList(int index) {
+        if (chunkListBuilder_ == null) {
+          ensureChunkListIsMutable();
+          chunkList_.remove(index);
+          onChanged();
+        } else {
+          chunkListBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .FileData chunk_list = 6;</code>
+       */
+      public Clientproto.FileData.Builder getChunkListBuilder(
+          int index) {
+        return getChunkListFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <code>repeated .FileData chunk_list = 6;</code>
+       */
+      public Clientproto.FileDataOrBuilder getChunkListOrBuilder(
+          int index) {
+        if (chunkListBuilder_ == null) {
+          return chunkList_.get(index);  } else {
+          return chunkListBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <code>repeated .FileData chunk_list = 6;</code>
+       */
+      public java.util.List<? extends Clientproto.FileDataOrBuilder> 
+           getChunkListOrBuilderList() {
+        if (chunkListBuilder_ != null) {
+          return chunkListBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(chunkList_);
+        }
+      }
+      /**
+       * <code>repeated .FileData chunk_list = 6;</code>
+       */
+      public Clientproto.FileData.Builder addChunkListBuilder() {
+        return getChunkListFieldBuilder().addBuilder(
+            Clientproto.FileData.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .FileData chunk_list = 6;</code>
+       */
+      public Clientproto.FileData.Builder addChunkListBuilder(
+          int index) {
+        return getChunkListFieldBuilder().addBuilder(
+            index, Clientproto.FileData.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .FileData chunk_list = 6;</code>
+       */
+      public java.util.List<Clientproto.FileData.Builder> 
+           getChunkListBuilderList() {
+        return getChunkListFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilderV3<
+          Clientproto.FileData, Clientproto.FileData.Builder, Clientproto.FileDataOrBuilder> 
+          getChunkListFieldBuilder() {
+        if (chunkListBuilder_ == null) {
+          chunkListBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
+              Clientproto.FileData, Clientproto.FileData.Builder, Clientproto.FileDataOrBuilder>(
+                  chunkList_,
+                  ((bitField0_ & 0x00000020) == 0x00000020),
+                  getParentForChildren(),
+                  isClean());
+          chunkList_ = null;
+        }
+        return chunkListBuilder_;
+      }
+
       private boolean success_ ;
       /**
-       * <code>bool success = 6;</code>
+       * <code>bool success = 7;</code>
        */
       public boolean getSuccess() {
         return success_;
       }
       /**
-       * <code>bool success = 6;</code>
+       * <code>bool success = 7;</code>
        */
       public Builder setSuccess(boolean value) {
         
@@ -1148,7 +1533,7 @@ public final class Clientproto {
         return this;
       }
       /**
-       * <code>bool success = 6;</code>
+       * <code>bool success = 7;</code>
        */
       public Builder clearSuccess() {
         
@@ -1200,1769 +1585,6 @@ public final class Clientproto {
     }
 
     public Clientproto.SNReceive getDefaultInstanceForType() {
-      return DEFAULT_INSTANCE;
-    }
-
-  }
-
-  public interface SNSendOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:SNSend)
-      com.google.protobuf.MessageOrBuilder {
-
-    /**
-     * <code>.FileData fileData = 1;</code>
-     */
-    boolean hasFileData();
-    /**
-     * <code>.FileData fileData = 1;</code>
-     */
-    Clientproto.FileData getFileData();
-    /**
-     * <code>.FileData fileData = 1;</code>
-     */
-    Clientproto.FileDataOrBuilder getFileDataOrBuilder();
-
-    /**
-     * <code>.SNSend.packetType type = 2;</code>
-     */
-    int getTypeValue();
-    /**
-     * <code>.SNSend.packetType type = 2;</code>
-     */
-    Clientproto.SNSend.packetType getType();
-
-    /**
-     * <code>repeated string node_files = 3;</code>
-     */
-    java.util.List<java.lang.String>
-        getNodeFilesList();
-    /**
-     * <code>repeated string node_files = 3;</code>
-     */
-    int getNodeFilesCount();
-    /**
-     * <code>repeated string node_files = 3;</code>
-     */
-    java.lang.String getNodeFiles(int index);
-    /**
-     * <code>repeated string node_files = 3;</code>
-     */
-    com.google.protobuf.ByteString
-        getNodeFilesBytes(int index);
-  }
-  /**
-   * <pre>
-   * Message type the storage node reply with
-   * </pre>
-   *
-   * Protobuf type {@code SNSend}
-   */
-  public  static final class SNSend extends
-      com.google.protobuf.GeneratedMessageV3 implements
-      // @@protoc_insertion_point(message_implements:SNSend)
-      SNSendOrBuilder {
-  private static final long serialVersionUID = 0L;
-    // Use SNSend.newBuilder() to construct.
-    private SNSend(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
-      super(builder);
-    }
-    private SNSend() {
-      type_ = 0;
-      nodeFiles_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-    }
-
-    @java.lang.Override
-    public final com.google.protobuf.UnknownFieldSet
-    getUnknownFields() {
-      return this.unknownFields;
-    }
-    private SNSend(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      this();
-      if (extensionRegistry == null) {
-        throw new java.lang.NullPointerException();
-      }
-      int mutable_bitField0_ = 0;
-      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-          com.google.protobuf.UnknownFieldSet.newBuilder();
-      try {
-        boolean done = false;
-        while (!done) {
-          int tag = input.readTag();
-          switch (tag) {
-            case 0:
-              done = true;
-              break;
-            default: {
-              if (!parseUnknownFieldProto3(
-                  input, unknownFields, extensionRegistry, tag)) {
-                done = true;
-              }
-              break;
-            }
-            case 10: {
-              Clientproto.FileData.Builder subBuilder = null;
-              if (fileData_ != null) {
-                subBuilder = fileData_.toBuilder();
-              }
-              fileData_ = input.readMessage(Clientproto.FileData.parser(), extensionRegistry);
-              if (subBuilder != null) {
-                subBuilder.mergeFrom(fileData_);
-                fileData_ = subBuilder.buildPartial();
-              }
-
-              break;
-            }
-            case 16: {
-              int rawValue = input.readEnum();
-
-              type_ = rawValue;
-              break;
-            }
-            case 26: {
-              java.lang.String s = input.readStringRequireUtf8();
-              if (!((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
-                nodeFiles_ = new com.google.protobuf.LazyStringArrayList();
-                mutable_bitField0_ |= 0x00000004;
-              }
-              nodeFiles_.add(s);
-              break;
-            }
-          }
-        }
-      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
-      } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e).setUnfinishedMessage(this);
-      } finally {
-        if (((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
-          nodeFiles_ = nodeFiles_.getUnmodifiableView();
-        }
-        this.unknownFields = unknownFields.build();
-        makeExtensionsImmutable();
-      }
-    }
-    public static final com.google.protobuf.Descriptors.Descriptor
-        getDescriptor() {
-      return Clientproto.internal_static_SNSend_descriptor;
-    }
-
-    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-        internalGetFieldAccessorTable() {
-      return Clientproto.internal_static_SNSend_fieldAccessorTable
-          .ensureFieldAccessorsInitialized(
-              Clientproto.SNSend.class, Clientproto.SNSend.Builder.class);
-    }
-
-    /**
-     * Protobuf enum {@code SNSend.packetType}
-     */
-    public enum packetType
-        implements com.google.protobuf.ProtocolMessageEnum {
-      /**
-       * <code>STORE = 0;</code>
-       */
-      STORE(0),
-      /**
-       * <code>RETRIEVE = 1;</code>
-       */
-      RETRIEVE(1),
-      /**
-       * <code>SYSTEM = 2;</code>
-       */
-      SYSTEM(2),
-      UNRECOGNIZED(-1),
-      ;
-
-      /**
-       * <code>STORE = 0;</code>
-       */
-      public static final int STORE_VALUE = 0;
-      /**
-       * <code>RETRIEVE = 1;</code>
-       */
-      public static final int RETRIEVE_VALUE = 1;
-      /**
-       * <code>SYSTEM = 2;</code>
-       */
-      public static final int SYSTEM_VALUE = 2;
-
-
-      public final int getNumber() {
-        if (this == UNRECOGNIZED) {
-          throw new java.lang.IllegalArgumentException(
-              "Can't get the number of an unknown enum value.");
-        }
-        return value;
-      }
-
-      /**
-       * @deprecated Use {@link #forNumber(int)} instead.
-       */
-      @java.lang.Deprecated
-      public static packetType valueOf(int value) {
-        return forNumber(value);
-      }
-
-      public static packetType forNumber(int value) {
-        switch (value) {
-          case 0: return STORE;
-          case 1: return RETRIEVE;
-          case 2: return SYSTEM;
-          default: return null;
-        }
-      }
-
-      public static com.google.protobuf.Internal.EnumLiteMap<packetType>
-          internalGetValueMap() {
-        return internalValueMap;
-      }
-      private static final com.google.protobuf.Internal.EnumLiteMap<
-          packetType> internalValueMap =
-            new com.google.protobuf.Internal.EnumLiteMap<packetType>() {
-              public packetType findValueByNumber(int number) {
-                return packetType.forNumber(number);
-              }
-            };
-
-      public final com.google.protobuf.Descriptors.EnumValueDescriptor
-          getValueDescriptor() {
-        return getDescriptor().getValues().get(ordinal());
-      }
-      public final com.google.protobuf.Descriptors.EnumDescriptor
-          getDescriptorForType() {
-        return getDescriptor();
-      }
-      public static final com.google.protobuf.Descriptors.EnumDescriptor
-          getDescriptor() {
-        return Clientproto.SNSend.getDescriptor().getEnumTypes().get(0);
-      }
-
-      private static final packetType[] VALUES = values();
-
-      public static packetType valueOf(
-          com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
-        if (desc.getType() != getDescriptor()) {
-          throw new java.lang.IllegalArgumentException(
-            "EnumValueDescriptor is not for this type.");
-        }
-        if (desc.getIndex() == -1) {
-          return UNRECOGNIZED;
-        }
-        return VALUES[desc.getIndex()];
-      }
-
-      private final int value;
-
-      private packetType(int value) {
-        this.value = value;
-      }
-
-      // @@protoc_insertion_point(enum_scope:SNSend.packetType)
-    }
-
-    private int bitField0_;
-    public static final int FILEDATA_FIELD_NUMBER = 1;
-    private Clientproto.FileData fileData_;
-    /**
-     * <code>.FileData fileData = 1;</code>
-     */
-    public boolean hasFileData() {
-      return fileData_ != null;
-    }
-    /**
-     * <code>.FileData fileData = 1;</code>
-     */
-    public Clientproto.FileData getFileData() {
-      return fileData_ == null ? Clientproto.FileData.getDefaultInstance() : fileData_;
-    }
-    /**
-     * <code>.FileData fileData = 1;</code>
-     */
-    public Clientproto.FileDataOrBuilder getFileDataOrBuilder() {
-      return getFileData();
-    }
-
-    public static final int TYPE_FIELD_NUMBER = 2;
-    private int type_;
-    /**
-     * <code>.SNSend.packetType type = 2;</code>
-     */
-    public int getTypeValue() {
-      return type_;
-    }
-    /**
-     * <code>.SNSend.packetType type = 2;</code>
-     */
-    public Clientproto.SNSend.packetType getType() {
-      Clientproto.SNSend.packetType result = Clientproto.SNSend.packetType.valueOf(type_);
-      return result == null ? Clientproto.SNSend.packetType.UNRECOGNIZED : result;
-    }
-
-    public static final int NODE_FILES_FIELD_NUMBER = 3;
-    private com.google.protobuf.LazyStringList nodeFiles_;
-    /**
-     * <code>repeated string node_files = 3;</code>
-     */
-    public com.google.protobuf.ProtocolStringList
-        getNodeFilesList() {
-      return nodeFiles_;
-    }
-    /**
-     * <code>repeated string node_files = 3;</code>
-     */
-    public int getNodeFilesCount() {
-      return nodeFiles_.size();
-    }
-    /**
-     * <code>repeated string node_files = 3;</code>
-     */
-    public java.lang.String getNodeFiles(int index) {
-      return nodeFiles_.get(index);
-    }
-    /**
-     * <code>repeated string node_files = 3;</code>
-     */
-    public com.google.protobuf.ByteString
-        getNodeFilesBytes(int index) {
-      return nodeFiles_.getByteString(index);
-    }
-
-    private byte memoizedIsInitialized = -1;
-    public final boolean isInitialized() {
-      byte isInitialized = memoizedIsInitialized;
-      if (isInitialized == 1) return true;
-      if (isInitialized == 0) return false;
-
-      memoizedIsInitialized = 1;
-      return true;
-    }
-
-    public void writeTo(com.google.protobuf.CodedOutputStream output)
-                        throws java.io.IOException {
-      if (fileData_ != null) {
-        output.writeMessage(1, getFileData());
-      }
-      if (type_ != Clientproto.SNSend.packetType.STORE.getNumber()) {
-        output.writeEnum(2, type_);
-      }
-      for (int i = 0; i < nodeFiles_.size(); i++) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 3, nodeFiles_.getRaw(i));
-      }
-      unknownFields.writeTo(output);
-    }
-
-    public int getSerializedSize() {
-      int size = memoizedSize;
-      if (size != -1) return size;
-
-      size = 0;
-      if (fileData_ != null) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(1, getFileData());
-      }
-      if (type_ != Clientproto.SNSend.packetType.STORE.getNumber()) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeEnumSize(2, type_);
-      }
-      {
-        int dataSize = 0;
-        for (int i = 0; i < nodeFiles_.size(); i++) {
-          dataSize += computeStringSizeNoTag(nodeFiles_.getRaw(i));
-        }
-        size += dataSize;
-        size += 1 * getNodeFilesList().size();
-      }
-      size += unknownFields.getSerializedSize();
-      memoizedSize = size;
-      return size;
-    }
-
-    @java.lang.Override
-    public boolean equals(final java.lang.Object obj) {
-      if (obj == this) {
-       return true;
-      }
-      if (!(obj instanceof Clientproto.SNSend)) {
-        return super.equals(obj);
-      }
-      Clientproto.SNSend other = (Clientproto.SNSend) obj;
-
-      boolean result = true;
-      result = result && (hasFileData() == other.hasFileData());
-      if (hasFileData()) {
-        result = result && getFileData()
-            .equals(other.getFileData());
-      }
-      result = result && type_ == other.type_;
-      result = result && getNodeFilesList()
-          .equals(other.getNodeFilesList());
-      result = result && unknownFields.equals(other.unknownFields);
-      return result;
-    }
-
-    @java.lang.Override
-    public int hashCode() {
-      if (memoizedHashCode != 0) {
-        return memoizedHashCode;
-      }
-      int hash = 41;
-      hash = (19 * hash) + getDescriptor().hashCode();
-      if (hasFileData()) {
-        hash = (37 * hash) + FILEDATA_FIELD_NUMBER;
-        hash = (53 * hash) + getFileData().hashCode();
-      }
-      hash = (37 * hash) + TYPE_FIELD_NUMBER;
-      hash = (53 * hash) + type_;
-      if (getNodeFilesCount() > 0) {
-        hash = (37 * hash) + NODE_FILES_FIELD_NUMBER;
-        hash = (53 * hash) + getNodeFilesList().hashCode();
-      }
-      hash = (29 * hash) + unknownFields.hashCode();
-      memoizedHashCode = hash;
-      return hash;
-    }
-
-    public static Clientproto.SNSend parseFrom(
-        java.nio.ByteBuffer data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static Clientproto.SNSend parseFrom(
-        java.nio.ByteBuffer data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static Clientproto.SNSend parseFrom(
-        com.google.protobuf.ByteString data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static Clientproto.SNSend parseFrom(
-        com.google.protobuf.ByteString data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static Clientproto.SNSend parseFrom(byte[] data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static Clientproto.SNSend parseFrom(
-        byte[] data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static Clientproto.SNSend parseFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input);
-    }
-    public static Clientproto.SNSend parseFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input, extensionRegistry);
-    }
-    public static Clientproto.SNSend parseDelimitedFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseDelimitedWithIOException(PARSER, input);
-    }
-    public static Clientproto.SNSend parseDelimitedFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
-    }
-    public static Clientproto.SNSend parseFrom(
-        com.google.protobuf.CodedInputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input);
-    }
-    public static Clientproto.SNSend parseFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input, extensionRegistry);
-    }
-
-    public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder() {
-      return DEFAULT_INSTANCE.toBuilder();
-    }
-    public static Builder newBuilder(Clientproto.SNSend prototype) {
-      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
-    }
-    public Builder toBuilder() {
-      return this == DEFAULT_INSTANCE
-          ? new Builder() : new Builder().mergeFrom(this);
-    }
-
-    @java.lang.Override
-    protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
-      Builder builder = new Builder(parent);
-      return builder;
-    }
-    /**
-     * <pre>
-     * Message type the storage node reply with
-     * </pre>
-     *
-     * Protobuf type {@code SNSend}
-     */
-    public static final class Builder extends
-        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:SNSend)
-        Clientproto.SNSendOrBuilder {
-      public static final com.google.protobuf.Descriptors.Descriptor
-          getDescriptor() {
-        return Clientproto.internal_static_SNSend_descriptor;
-      }
-
-      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-          internalGetFieldAccessorTable() {
-        return Clientproto.internal_static_SNSend_fieldAccessorTable
-            .ensureFieldAccessorsInitialized(
-                Clientproto.SNSend.class, Clientproto.SNSend.Builder.class);
-      }
-
-      // Construct using Clientproto.SNSend.newBuilder()
-      private Builder() {
-        maybeForceBuilderInitialization();
-      }
-
-      private Builder(
-          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
-        super(parent);
-        maybeForceBuilderInitialization();
-      }
-      private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessageV3
-                .alwaysUseFieldBuilders) {
-        }
-      }
-      public Builder clear() {
-        super.clear();
-        if (fileDataBuilder_ == null) {
-          fileData_ = null;
-        } else {
-          fileData_ = null;
-          fileDataBuilder_ = null;
-        }
-        type_ = 0;
-
-        nodeFiles_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-        bitField0_ = (bitField0_ & ~0x00000004);
-        return this;
-      }
-
-      public com.google.protobuf.Descriptors.Descriptor
-          getDescriptorForType() {
-        return Clientproto.internal_static_SNSend_descriptor;
-      }
-
-      public Clientproto.SNSend getDefaultInstanceForType() {
-        return Clientproto.SNSend.getDefaultInstance();
-      }
-
-      public Clientproto.SNSend build() {
-        Clientproto.SNSend result = buildPartial();
-        if (!result.isInitialized()) {
-          throw newUninitializedMessageException(result);
-        }
-        return result;
-      }
-
-      public Clientproto.SNSend buildPartial() {
-        Clientproto.SNSend result = new Clientproto.SNSend(this);
-        int from_bitField0_ = bitField0_;
-        int to_bitField0_ = 0;
-        if (fileDataBuilder_ == null) {
-          result.fileData_ = fileData_;
-        } else {
-          result.fileData_ = fileDataBuilder_.build();
-        }
-        result.type_ = type_;
-        if (((bitField0_ & 0x00000004) == 0x00000004)) {
-          nodeFiles_ = nodeFiles_.getUnmodifiableView();
-          bitField0_ = (bitField0_ & ~0x00000004);
-        }
-        result.nodeFiles_ = nodeFiles_;
-        result.bitField0_ = to_bitField0_;
-        onBuilt();
-        return result;
-      }
-
-      public Builder clone() {
-        return (Builder) super.clone();
-      }
-      public Builder setField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          java.lang.Object value) {
-        return (Builder) super.setField(field, value);
-      }
-      public Builder clearField(
-          com.google.protobuf.Descriptors.FieldDescriptor field) {
-        return (Builder) super.clearField(field);
-      }
-      public Builder clearOneof(
-          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
-        return (Builder) super.clearOneof(oneof);
-      }
-      public Builder setRepeatedField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          int index, java.lang.Object value) {
-        return (Builder) super.setRepeatedField(field, index, value);
-      }
-      public Builder addRepeatedField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          java.lang.Object value) {
-        return (Builder) super.addRepeatedField(field, value);
-      }
-      public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof Clientproto.SNSend) {
-          return mergeFrom((Clientproto.SNSend)other);
-        } else {
-          super.mergeFrom(other);
-          return this;
-        }
-      }
-
-      public Builder mergeFrom(Clientproto.SNSend other) {
-        if (other == Clientproto.SNSend.getDefaultInstance()) return this;
-        if (other.hasFileData()) {
-          mergeFileData(other.getFileData());
-        }
-        if (other.type_ != 0) {
-          setTypeValue(other.getTypeValue());
-        }
-        if (!other.nodeFiles_.isEmpty()) {
-          if (nodeFiles_.isEmpty()) {
-            nodeFiles_ = other.nodeFiles_;
-            bitField0_ = (bitField0_ & ~0x00000004);
-          } else {
-            ensureNodeFilesIsMutable();
-            nodeFiles_.addAll(other.nodeFiles_);
-          }
-          onChanged();
-        }
-        this.mergeUnknownFields(other.unknownFields);
-        onChanged();
-        return this;
-      }
-
-      public final boolean isInitialized() {
-        return true;
-      }
-
-      public Builder mergeFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        Clientproto.SNSend parsedMessage = null;
-        try {
-          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
-        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (Clientproto.SNSend) e.getUnfinishedMessage();
-          throw e.unwrapIOException();
-        } finally {
-          if (parsedMessage != null) {
-            mergeFrom(parsedMessage);
-          }
-        }
-        return this;
-      }
-      private int bitField0_;
-
-      private Clientproto.FileData fileData_ = null;
-      private com.google.protobuf.SingleFieldBuilderV3<
-          Clientproto.FileData, Clientproto.FileData.Builder, Clientproto.FileDataOrBuilder> fileDataBuilder_;
-      /**
-       * <code>.FileData fileData = 1;</code>
-       */
-      public boolean hasFileData() {
-        return fileDataBuilder_ != null || fileData_ != null;
-      }
-      /**
-       * <code>.FileData fileData = 1;</code>
-       */
-      public Clientproto.FileData getFileData() {
-        if (fileDataBuilder_ == null) {
-          return fileData_ == null ? Clientproto.FileData.getDefaultInstance() : fileData_;
-        } else {
-          return fileDataBuilder_.getMessage();
-        }
-      }
-      /**
-       * <code>.FileData fileData = 1;</code>
-       */
-      public Builder setFileData(Clientproto.FileData value) {
-        if (fileDataBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          fileData_ = value;
-          onChanged();
-        } else {
-          fileDataBuilder_.setMessage(value);
-        }
-
-        return this;
-      }
-      /**
-       * <code>.FileData fileData = 1;</code>
-       */
-      public Builder setFileData(
-          Clientproto.FileData.Builder builderForValue) {
-        if (fileDataBuilder_ == null) {
-          fileData_ = builderForValue.build();
-          onChanged();
-        } else {
-          fileDataBuilder_.setMessage(builderForValue.build());
-        }
-
-        return this;
-      }
-      /**
-       * <code>.FileData fileData = 1;</code>
-       */
-      public Builder mergeFileData(Clientproto.FileData value) {
-        if (fileDataBuilder_ == null) {
-          if (fileData_ != null) {
-            fileData_ =
-              Clientproto.FileData.newBuilder(fileData_).mergeFrom(value).buildPartial();
-          } else {
-            fileData_ = value;
-          }
-          onChanged();
-        } else {
-          fileDataBuilder_.mergeFrom(value);
-        }
-
-        return this;
-      }
-      /**
-       * <code>.FileData fileData = 1;</code>
-       */
-      public Builder clearFileData() {
-        if (fileDataBuilder_ == null) {
-          fileData_ = null;
-          onChanged();
-        } else {
-          fileData_ = null;
-          fileDataBuilder_ = null;
-        }
-
-        return this;
-      }
-      /**
-       * <code>.FileData fileData = 1;</code>
-       */
-      public Clientproto.FileData.Builder getFileDataBuilder() {
-        
-        onChanged();
-        return getFileDataFieldBuilder().getBuilder();
-      }
-      /**
-       * <code>.FileData fileData = 1;</code>
-       */
-      public Clientproto.FileDataOrBuilder getFileDataOrBuilder() {
-        if (fileDataBuilder_ != null) {
-          return fileDataBuilder_.getMessageOrBuilder();
-        } else {
-          return fileData_ == null ?
-              Clientproto.FileData.getDefaultInstance() : fileData_;
-        }
-      }
-      /**
-       * <code>.FileData fileData = 1;</code>
-       */
-      private com.google.protobuf.SingleFieldBuilderV3<
-          Clientproto.FileData, Clientproto.FileData.Builder, Clientproto.FileDataOrBuilder> 
-          getFileDataFieldBuilder() {
-        if (fileDataBuilder_ == null) {
-          fileDataBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
-              Clientproto.FileData, Clientproto.FileData.Builder, Clientproto.FileDataOrBuilder>(
-                  getFileData(),
-                  getParentForChildren(),
-                  isClean());
-          fileData_ = null;
-        }
-        return fileDataBuilder_;
-      }
-
-      private int type_ = 0;
-      /**
-       * <code>.SNSend.packetType type = 2;</code>
-       */
-      public int getTypeValue() {
-        return type_;
-      }
-      /**
-       * <code>.SNSend.packetType type = 2;</code>
-       */
-      public Builder setTypeValue(int value) {
-        type_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>.SNSend.packetType type = 2;</code>
-       */
-      public Clientproto.SNSend.packetType getType() {
-        Clientproto.SNSend.packetType result = Clientproto.SNSend.packetType.valueOf(type_);
-        return result == null ? Clientproto.SNSend.packetType.UNRECOGNIZED : result;
-      }
-      /**
-       * <code>.SNSend.packetType type = 2;</code>
-       */
-      public Builder setType(Clientproto.SNSend.packetType value) {
-        if (value == null) {
-          throw new NullPointerException();
-        }
-        
-        type_ = value.getNumber();
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>.SNSend.packetType type = 2;</code>
-       */
-      public Builder clearType() {
-        
-        type_ = 0;
-        onChanged();
-        return this;
-      }
-
-      private com.google.protobuf.LazyStringList nodeFiles_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-      private void ensureNodeFilesIsMutable() {
-        if (!((bitField0_ & 0x00000004) == 0x00000004)) {
-          nodeFiles_ = new com.google.protobuf.LazyStringArrayList(nodeFiles_);
-          bitField0_ |= 0x00000004;
-         }
-      }
-      /**
-       * <code>repeated string node_files = 3;</code>
-       */
-      public com.google.protobuf.ProtocolStringList
-          getNodeFilesList() {
-        return nodeFiles_.getUnmodifiableView();
-      }
-      /**
-       * <code>repeated string node_files = 3;</code>
-       */
-      public int getNodeFilesCount() {
-        return nodeFiles_.size();
-      }
-      /**
-       * <code>repeated string node_files = 3;</code>
-       */
-      public java.lang.String getNodeFiles(int index) {
-        return nodeFiles_.get(index);
-      }
-      /**
-       * <code>repeated string node_files = 3;</code>
-       */
-      public com.google.protobuf.ByteString
-          getNodeFilesBytes(int index) {
-        return nodeFiles_.getByteString(index);
-      }
-      /**
-       * <code>repeated string node_files = 3;</code>
-       */
-      public Builder setNodeFiles(
-          int index, java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  ensureNodeFilesIsMutable();
-        nodeFiles_.set(index, value);
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>repeated string node_files = 3;</code>
-       */
-      public Builder addNodeFiles(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  ensureNodeFilesIsMutable();
-        nodeFiles_.add(value);
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>repeated string node_files = 3;</code>
-       */
-      public Builder addAllNodeFiles(
-          java.lang.Iterable<java.lang.String> values) {
-        ensureNodeFilesIsMutable();
-        com.google.protobuf.AbstractMessageLite.Builder.addAll(
-            values, nodeFiles_);
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>repeated string node_files = 3;</code>
-       */
-      public Builder clearNodeFiles() {
-        nodeFiles_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-        bitField0_ = (bitField0_ & ~0x00000004);
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>repeated string node_files = 3;</code>
-       */
-      public Builder addNodeFilesBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  checkByteStringIsUtf8(value);
-        ensureNodeFilesIsMutable();
-        nodeFiles_.add(value);
-        onChanged();
-        return this;
-      }
-      public final Builder setUnknownFields(
-          final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return super.setUnknownFieldsProto3(unknownFields);
-      }
-
-      public final Builder mergeUnknownFields(
-          final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return super.mergeUnknownFields(unknownFields);
-      }
-
-
-      // @@protoc_insertion_point(builder_scope:SNSend)
-    }
-
-    // @@protoc_insertion_point(class_scope:SNSend)
-    private static final Clientproto.SNSend DEFAULT_INSTANCE;
-    static {
-      DEFAULT_INSTANCE = new Clientproto.SNSend();
-    }
-
-    public static Clientproto.SNSend getDefaultInstance() {
-      return DEFAULT_INSTANCE;
-    }
-
-    private static final com.google.protobuf.Parser<SNSend>
-        PARSER = new com.google.protobuf.AbstractParser<SNSend>() {
-      public SNSend parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new SNSend(input, extensionRegistry);
-      }
-    };
-
-    public static com.google.protobuf.Parser<SNSend> parser() {
-      return PARSER;
-    }
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<SNSend> getParserForType() {
-      return PARSER;
-    }
-
-    public Clientproto.SNSend getDefaultInstanceForType() {
-      return DEFAULT_INSTANCE;
-    }
-
-  }
-
-  public interface FileDataOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:FileData)
-      com.google.protobuf.MessageOrBuilder {
-
-    /**
-     * <code>bytes data = 1;</code>
-     */
-    com.google.protobuf.ByteString getData();
-
-    /**
-     * <code>int32 chunk_no = 2;</code>
-     */
-    int getChunkNo();
-
-    /**
-     * <code>int32 num_chunks = 3;</code>
-     */
-    int getNumChunks();
-
-    /**
-     * <code>string filename = 4;</code>
-     */
-    java.lang.String getFilename();
-    /**
-     * <code>string filename = 4;</code>
-     */
-    com.google.protobuf.ByteString
-        getFilenameBytes();
-
-    /**
-     * <code>int32 replicaNum = 5;</code>
-     */
-    int getReplicaNum();
-  }
-  /**
-   * Protobuf type {@code FileData}
-   */
-  public  static final class FileData extends
-      com.google.protobuf.GeneratedMessageV3 implements
-      // @@protoc_insertion_point(message_implements:FileData)
-      FileDataOrBuilder {
-  private static final long serialVersionUID = 0L;
-    // Use FileData.newBuilder() to construct.
-    private FileData(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
-      super(builder);
-    }
-    private FileData() {
-      data_ = com.google.protobuf.ByteString.EMPTY;
-      chunkNo_ = 0;
-      numChunks_ = 0;
-      filename_ = "";
-      replicaNum_ = 0;
-    }
-
-    @java.lang.Override
-    public final com.google.protobuf.UnknownFieldSet
-    getUnknownFields() {
-      return this.unknownFields;
-    }
-    private FileData(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      this();
-      if (extensionRegistry == null) {
-        throw new java.lang.NullPointerException();
-      }
-      int mutable_bitField0_ = 0;
-      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-          com.google.protobuf.UnknownFieldSet.newBuilder();
-      try {
-        boolean done = false;
-        while (!done) {
-          int tag = input.readTag();
-          switch (tag) {
-            case 0:
-              done = true;
-              break;
-            default: {
-              if (!parseUnknownFieldProto3(
-                  input, unknownFields, extensionRegistry, tag)) {
-                done = true;
-              }
-              break;
-            }
-            case 10: {
-
-              data_ = input.readBytes();
-              break;
-            }
-            case 16: {
-
-              chunkNo_ = input.readInt32();
-              break;
-            }
-            case 24: {
-
-              numChunks_ = input.readInt32();
-              break;
-            }
-            case 34: {
-              java.lang.String s = input.readStringRequireUtf8();
-
-              filename_ = s;
-              break;
-            }
-            case 40: {
-
-              replicaNum_ = input.readInt32();
-              break;
-            }
-          }
-        }
-      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
-      } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e).setUnfinishedMessage(this);
-      } finally {
-        this.unknownFields = unknownFields.build();
-        makeExtensionsImmutable();
-      }
-    }
-    public static final com.google.protobuf.Descriptors.Descriptor
-        getDescriptor() {
-      return Clientproto.internal_static_FileData_descriptor;
-    }
-
-    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-        internalGetFieldAccessorTable() {
-      return Clientproto.internal_static_FileData_fieldAccessorTable
-          .ensureFieldAccessorsInitialized(
-              Clientproto.FileData.class, Clientproto.FileData.Builder.class);
-    }
-
-    public static final int DATA_FIELD_NUMBER = 1;
-    private com.google.protobuf.ByteString data_;
-    /**
-     * <code>bytes data = 1;</code>
-     */
-    public com.google.protobuf.ByteString getData() {
-      return data_;
-    }
-
-    public static final int CHUNK_NO_FIELD_NUMBER = 2;
-    private int chunkNo_;
-    /**
-     * <code>int32 chunk_no = 2;</code>
-     */
-    public int getChunkNo() {
-      return chunkNo_;
-    }
-
-    public static final int NUM_CHUNKS_FIELD_NUMBER = 3;
-    private int numChunks_;
-    /**
-     * <code>int32 num_chunks = 3;</code>
-     */
-    public int getNumChunks() {
-      return numChunks_;
-    }
-
-    public static final int FILENAME_FIELD_NUMBER = 4;
-    private volatile java.lang.Object filename_;
-    /**
-     * <code>string filename = 4;</code>
-     */
-    public java.lang.String getFilename() {
-      java.lang.Object ref = filename_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        filename_ = s;
-        return s;
-      }
-    }
-    /**
-     * <code>string filename = 4;</code>
-     */
-    public com.google.protobuf.ByteString
-        getFilenameBytes() {
-      java.lang.Object ref = filename_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        filename_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-
-    public static final int REPLICANUM_FIELD_NUMBER = 5;
-    private int replicaNum_;
-    /**
-     * <code>int32 replicaNum = 5;</code>
-     */
-    public int getReplicaNum() {
-      return replicaNum_;
-    }
-
-    private byte memoizedIsInitialized = -1;
-    public final boolean isInitialized() {
-      byte isInitialized = memoizedIsInitialized;
-      if (isInitialized == 1) return true;
-      if (isInitialized == 0) return false;
-
-      memoizedIsInitialized = 1;
-      return true;
-    }
-
-    public void writeTo(com.google.protobuf.CodedOutputStream output)
-                        throws java.io.IOException {
-      if (!data_.isEmpty()) {
-        output.writeBytes(1, data_);
-      }
-      if (chunkNo_ != 0) {
-        output.writeInt32(2, chunkNo_);
-      }
-      if (numChunks_ != 0) {
-        output.writeInt32(3, numChunks_);
-      }
-      if (!getFilenameBytes().isEmpty()) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 4, filename_);
-      }
-      if (replicaNum_ != 0) {
-        output.writeInt32(5, replicaNum_);
-      }
-      unknownFields.writeTo(output);
-    }
-
-    public int getSerializedSize() {
-      int size = memoizedSize;
-      if (size != -1) return size;
-
-      size = 0;
-      if (!data_.isEmpty()) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(1, data_);
-      }
-      if (chunkNo_ != 0) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(2, chunkNo_);
-      }
-      if (numChunks_ != 0) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(3, numChunks_);
-      }
-      if (!getFilenameBytes().isEmpty()) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(4, filename_);
-      }
-      if (replicaNum_ != 0) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(5, replicaNum_);
-      }
-      size += unknownFields.getSerializedSize();
-      memoizedSize = size;
-      return size;
-    }
-
-    @java.lang.Override
-    public boolean equals(final java.lang.Object obj) {
-      if (obj == this) {
-       return true;
-      }
-      if (!(obj instanceof Clientproto.FileData)) {
-        return super.equals(obj);
-      }
-      Clientproto.FileData other = (Clientproto.FileData) obj;
-
-      boolean result = true;
-      result = result && getData()
-          .equals(other.getData());
-      result = result && (getChunkNo()
-          == other.getChunkNo());
-      result = result && (getNumChunks()
-          == other.getNumChunks());
-      result = result && getFilename()
-          .equals(other.getFilename());
-      result = result && (getReplicaNum()
-          == other.getReplicaNum());
-      result = result && unknownFields.equals(other.unknownFields);
-      return result;
-    }
-
-    @java.lang.Override
-    public int hashCode() {
-      if (memoizedHashCode != 0) {
-        return memoizedHashCode;
-      }
-      int hash = 41;
-      hash = (19 * hash) + getDescriptor().hashCode();
-      hash = (37 * hash) + DATA_FIELD_NUMBER;
-      hash = (53 * hash) + getData().hashCode();
-      hash = (37 * hash) + CHUNK_NO_FIELD_NUMBER;
-      hash = (53 * hash) + getChunkNo();
-      hash = (37 * hash) + NUM_CHUNKS_FIELD_NUMBER;
-      hash = (53 * hash) + getNumChunks();
-      hash = (37 * hash) + FILENAME_FIELD_NUMBER;
-      hash = (53 * hash) + getFilename().hashCode();
-      hash = (37 * hash) + REPLICANUM_FIELD_NUMBER;
-      hash = (53 * hash) + getReplicaNum();
-      hash = (29 * hash) + unknownFields.hashCode();
-      memoizedHashCode = hash;
-      return hash;
-    }
-
-    public static Clientproto.FileData parseFrom(
-        java.nio.ByteBuffer data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static Clientproto.FileData parseFrom(
-        java.nio.ByteBuffer data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static Clientproto.FileData parseFrom(
-        com.google.protobuf.ByteString data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static Clientproto.FileData parseFrom(
-        com.google.protobuf.ByteString data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static Clientproto.FileData parseFrom(byte[] data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static Clientproto.FileData parseFrom(
-        byte[] data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static Clientproto.FileData parseFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input);
-    }
-    public static Clientproto.FileData parseFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input, extensionRegistry);
-    }
-    public static Clientproto.FileData parseDelimitedFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseDelimitedWithIOException(PARSER, input);
-    }
-    public static Clientproto.FileData parseDelimitedFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
-    }
-    public static Clientproto.FileData parseFrom(
-        com.google.protobuf.CodedInputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input);
-    }
-    public static Clientproto.FileData parseFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input, extensionRegistry);
-    }
-
-    public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder() {
-      return DEFAULT_INSTANCE.toBuilder();
-    }
-    public static Builder newBuilder(Clientproto.FileData prototype) {
-      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
-    }
-    public Builder toBuilder() {
-      return this == DEFAULT_INSTANCE
-          ? new Builder() : new Builder().mergeFrom(this);
-    }
-
-    @java.lang.Override
-    protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
-      Builder builder = new Builder(parent);
-      return builder;
-    }
-    /**
-     * Protobuf type {@code FileData}
-     */
-    public static final class Builder extends
-        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:FileData)
-        Clientproto.FileDataOrBuilder {
-      public static final com.google.protobuf.Descriptors.Descriptor
-          getDescriptor() {
-        return Clientproto.internal_static_FileData_descriptor;
-      }
-
-      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-          internalGetFieldAccessorTable() {
-        return Clientproto.internal_static_FileData_fieldAccessorTable
-            .ensureFieldAccessorsInitialized(
-                Clientproto.FileData.class, Clientproto.FileData.Builder.class);
-      }
-
-      // Construct using Clientproto.FileData.newBuilder()
-      private Builder() {
-        maybeForceBuilderInitialization();
-      }
-
-      private Builder(
-          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
-        super(parent);
-        maybeForceBuilderInitialization();
-      }
-      private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessageV3
-                .alwaysUseFieldBuilders) {
-        }
-      }
-      public Builder clear() {
-        super.clear();
-        data_ = com.google.protobuf.ByteString.EMPTY;
-
-        chunkNo_ = 0;
-
-        numChunks_ = 0;
-
-        filename_ = "";
-
-        replicaNum_ = 0;
-
-        return this;
-      }
-
-      public com.google.protobuf.Descriptors.Descriptor
-          getDescriptorForType() {
-        return Clientproto.internal_static_FileData_descriptor;
-      }
-
-      public Clientproto.FileData getDefaultInstanceForType() {
-        return Clientproto.FileData.getDefaultInstance();
-      }
-
-      public Clientproto.FileData build() {
-        Clientproto.FileData result = buildPartial();
-        if (!result.isInitialized()) {
-          throw newUninitializedMessageException(result);
-        }
-        return result;
-      }
-
-      public Clientproto.FileData buildPartial() {
-        Clientproto.FileData result = new Clientproto.FileData(this);
-        result.data_ = data_;
-        result.chunkNo_ = chunkNo_;
-        result.numChunks_ = numChunks_;
-        result.filename_ = filename_;
-        result.replicaNum_ = replicaNum_;
-        onBuilt();
-        return result;
-      }
-
-      public Builder clone() {
-        return (Builder) super.clone();
-      }
-      public Builder setField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          java.lang.Object value) {
-        return (Builder) super.setField(field, value);
-      }
-      public Builder clearField(
-          com.google.protobuf.Descriptors.FieldDescriptor field) {
-        return (Builder) super.clearField(field);
-      }
-      public Builder clearOneof(
-          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
-        return (Builder) super.clearOneof(oneof);
-      }
-      public Builder setRepeatedField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          int index, java.lang.Object value) {
-        return (Builder) super.setRepeatedField(field, index, value);
-      }
-      public Builder addRepeatedField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          java.lang.Object value) {
-        return (Builder) super.addRepeatedField(field, value);
-      }
-      public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof Clientproto.FileData) {
-          return mergeFrom((Clientproto.FileData)other);
-        } else {
-          super.mergeFrom(other);
-          return this;
-        }
-      }
-
-      public Builder mergeFrom(Clientproto.FileData other) {
-        if (other == Clientproto.FileData.getDefaultInstance()) return this;
-        if (other.getData() != com.google.protobuf.ByteString.EMPTY) {
-          setData(other.getData());
-        }
-        if (other.getChunkNo() != 0) {
-          setChunkNo(other.getChunkNo());
-        }
-        if (other.getNumChunks() != 0) {
-          setNumChunks(other.getNumChunks());
-        }
-        if (!other.getFilename().isEmpty()) {
-          filename_ = other.filename_;
-          onChanged();
-        }
-        if (other.getReplicaNum() != 0) {
-          setReplicaNum(other.getReplicaNum());
-        }
-        this.mergeUnknownFields(other.unknownFields);
-        onChanged();
-        return this;
-      }
-
-      public final boolean isInitialized() {
-        return true;
-      }
-
-      public Builder mergeFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        Clientproto.FileData parsedMessage = null;
-        try {
-          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
-        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (Clientproto.FileData) e.getUnfinishedMessage();
-          throw e.unwrapIOException();
-        } finally {
-          if (parsedMessage != null) {
-            mergeFrom(parsedMessage);
-          }
-        }
-        return this;
-      }
-
-      private com.google.protobuf.ByteString data_ = com.google.protobuf.ByteString.EMPTY;
-      /**
-       * <code>bytes data = 1;</code>
-       */
-      public com.google.protobuf.ByteString getData() {
-        return data_;
-      }
-      /**
-       * <code>bytes data = 1;</code>
-       */
-      public Builder setData(com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  
-        data_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>bytes data = 1;</code>
-       */
-      public Builder clearData() {
-        
-        data_ = getDefaultInstance().getData();
-        onChanged();
-        return this;
-      }
-
-      private int chunkNo_ ;
-      /**
-       * <code>int32 chunk_no = 2;</code>
-       */
-      public int getChunkNo() {
-        return chunkNo_;
-      }
-      /**
-       * <code>int32 chunk_no = 2;</code>
-       */
-      public Builder setChunkNo(int value) {
-        
-        chunkNo_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>int32 chunk_no = 2;</code>
-       */
-      public Builder clearChunkNo() {
-        
-        chunkNo_ = 0;
-        onChanged();
-        return this;
-      }
-
-      private int numChunks_ ;
-      /**
-       * <code>int32 num_chunks = 3;</code>
-       */
-      public int getNumChunks() {
-        return numChunks_;
-      }
-      /**
-       * <code>int32 num_chunks = 3;</code>
-       */
-      public Builder setNumChunks(int value) {
-        
-        numChunks_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>int32 num_chunks = 3;</code>
-       */
-      public Builder clearNumChunks() {
-        
-        numChunks_ = 0;
-        onChanged();
-        return this;
-      }
-
-      private java.lang.Object filename_ = "";
-      /**
-       * <code>string filename = 4;</code>
-       */
-      public java.lang.String getFilename() {
-        java.lang.Object ref = filename_;
-        if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          filename_ = s;
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
-      }
-      /**
-       * <code>string filename = 4;</code>
-       */
-      public com.google.protobuf.ByteString
-          getFilenameBytes() {
-        java.lang.Object ref = filename_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          filename_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <code>string filename = 4;</code>
-       */
-      public Builder setFilename(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  
-        filename_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>string filename = 4;</code>
-       */
-      public Builder clearFilename() {
-        
-        filename_ = getDefaultInstance().getFilename();
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>string filename = 4;</code>
-       */
-      public Builder setFilenameBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  checkByteStringIsUtf8(value);
-        
-        filename_ = value;
-        onChanged();
-        return this;
-      }
-
-      private int replicaNum_ ;
-      /**
-       * <code>int32 replicaNum = 5;</code>
-       */
-      public int getReplicaNum() {
-        return replicaNum_;
-      }
-      /**
-       * <code>int32 replicaNum = 5;</code>
-       */
-      public Builder setReplicaNum(int value) {
-        
-        replicaNum_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>int32 replicaNum = 5;</code>
-       */
-      public Builder clearReplicaNum() {
-        
-        replicaNum_ = 0;
-        onChanged();
-        return this;
-      }
-      public final Builder setUnknownFields(
-          final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return super.setUnknownFieldsProto3(unknownFields);
-      }
-
-      public final Builder mergeUnknownFields(
-          final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return super.mergeUnknownFields(unknownFields);
-      }
-
-
-      // @@protoc_insertion_point(builder_scope:FileData)
-    }
-
-    // @@protoc_insertion_point(class_scope:FileData)
-    private static final Clientproto.FileData DEFAULT_INSTANCE;
-    static {
-      DEFAULT_INSTANCE = new Clientproto.FileData();
-    }
-
-    public static Clientproto.FileData getDefaultInstance() {
-      return DEFAULT_INSTANCE;
-    }
-
-    private static final com.google.protobuf.Parser<FileData>
-        PARSER = new com.google.protobuf.AbstractParser<FileData>() {
-      public FileData parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new FileData(input, extensionRegistry);
-      }
-    };
-
-    public static com.google.protobuf.Parser<FileData> parser() {
-      return PARSER;
-    }
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<FileData> getParserForType() {
-      return PARSER;
-    }
-
-    public Clientproto.FileData getDefaultInstanceForType() {
       return DEFAULT_INSTANCE;
     }
 
@@ -3911,40 +2533,64 @@ public final class Clientproto {
     int getReqHandled();
 
     /**
-     * <code>repeated .NodeInfo all_nodes = 6;</code>
+     * <code>repeated .NodeInfo new_nodes = 6;</code>
      */
     java.util.List<Clientproto.NodeInfo> 
-        getAllNodesList();
+        getNewNodesList();
     /**
-     * <code>repeated .NodeInfo all_nodes = 6;</code>
+     * <code>repeated .NodeInfo new_nodes = 6;</code>
      */
-    Clientproto.NodeInfo getAllNodes(int index);
+    Clientproto.NodeInfo getNewNodes(int index);
     /**
-     * <code>repeated .NodeInfo all_nodes = 6;</code>
+     * <code>repeated .NodeInfo new_nodes = 6;</code>
      */
-    int getAllNodesCount();
+    int getNewNodesCount();
     /**
-     * <code>repeated .NodeInfo all_nodes = 6;</code>
+     * <code>repeated .NodeInfo new_nodes = 6;</code>
      */
     java.util.List<? extends Clientproto.NodeInfoOrBuilder> 
-        getAllNodesOrBuilderList();
+        getNewNodesOrBuilderList();
     /**
-     * <code>repeated .NodeInfo all_nodes = 6;</code>
+     * <code>repeated .NodeInfo new_nodes = 6;</code>
      */
-    Clientproto.NodeInfoOrBuilder getAllNodesOrBuilder(
+    Clientproto.NodeInfoOrBuilder getNewNodesOrBuilder(
         int index);
 
     /**
-     * <code>int32 nodeId = 7;</code>
+     * <code>repeated .NodeInfo removed_nodes = 7;</code>
+     */
+    java.util.List<Clientproto.NodeInfo> 
+        getRemovedNodesList();
+    /**
+     * <code>repeated .NodeInfo removed_nodes = 7;</code>
+     */
+    Clientproto.NodeInfo getRemovedNodes(int index);
+    /**
+     * <code>repeated .NodeInfo removed_nodes = 7;</code>
+     */
+    int getRemovedNodesCount();
+    /**
+     * <code>repeated .NodeInfo removed_nodes = 7;</code>
+     */
+    java.util.List<? extends Clientproto.NodeInfoOrBuilder> 
+        getRemovedNodesOrBuilderList();
+    /**
+     * <code>repeated .NodeInfo removed_nodes = 7;</code>
+     */
+    Clientproto.NodeInfoOrBuilder getRemovedNodesOrBuilder(
+        int index);
+
+    /**
+     * <code>int32 nodeId = 8;</code>
      */
     int getNodeId();
 
     /**
-     * <code>.CordResponse.packetType type = 8;</code>
+     * <code>.CordResponse.packetType type = 9;</code>
      */
     int getTypeValue();
     /**
-     * <code>.CordResponse.packetType type = 8;</code>
+     * <code>.CordResponse.packetType type = 9;</code>
      */
     Clientproto.CordResponse.packetType getType();
   }
@@ -3966,7 +2612,8 @@ public final class Clientproto {
       endRange_ = 0;
       availSpace_ = 0;
       reqHandled_ = 0;
-      allNodes_ = java.util.Collections.emptyList();
+      newNodes_ = java.util.Collections.emptyList();
+      removedNodes_ = java.util.Collections.emptyList();
       nodeId_ = 0;
       type_ = 0;
     }
@@ -4029,19 +2676,28 @@ public final class Clientproto {
             }
             case 50: {
               if (!((mutable_bitField0_ & 0x00000020) == 0x00000020)) {
-                allNodes_ = new java.util.ArrayList<Clientproto.NodeInfo>();
+                newNodes_ = new java.util.ArrayList<Clientproto.NodeInfo>();
                 mutable_bitField0_ |= 0x00000020;
               }
-              allNodes_.add(
+              newNodes_.add(
                   input.readMessage(Clientproto.NodeInfo.parser(), extensionRegistry));
               break;
             }
-            case 56: {
+            case 58: {
+              if (!((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
+                removedNodes_ = new java.util.ArrayList<Clientproto.NodeInfo>();
+                mutable_bitField0_ |= 0x00000040;
+              }
+              removedNodes_.add(
+                  input.readMessage(Clientproto.NodeInfo.parser(), extensionRegistry));
+              break;
+            }
+            case 64: {
 
               nodeId_ = input.readInt32();
               break;
             }
-            case 64: {
+            case 72: {
               int rawValue = input.readEnum();
 
               type_ = rawValue;
@@ -4056,7 +2712,10 @@ public final class Clientproto {
             e).setUnfinishedMessage(this);
       } finally {
         if (((mutable_bitField0_ & 0x00000020) == 0x00000020)) {
-          allNodes_ = java.util.Collections.unmodifiableList(allNodes_);
+          newNodes_ = java.util.Collections.unmodifiableList(newNodes_);
+        }
+        if (((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
+          removedNodes_ = java.util.Collections.unmodifiableList(removedNodes_);
         }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -4227,60 +2886,95 @@ public final class Clientproto {
       return reqHandled_;
     }
 
-    public static final int ALL_NODES_FIELD_NUMBER = 6;
-    private java.util.List<Clientproto.NodeInfo> allNodes_;
+    public static final int NEW_NODES_FIELD_NUMBER = 6;
+    private java.util.List<Clientproto.NodeInfo> newNodes_;
     /**
-     * <code>repeated .NodeInfo all_nodes = 6;</code>
+     * <code>repeated .NodeInfo new_nodes = 6;</code>
      */
-    public java.util.List<Clientproto.NodeInfo> getAllNodesList() {
-      return allNodes_;
+    public java.util.List<Clientproto.NodeInfo> getNewNodesList() {
+      return newNodes_;
     }
     /**
-     * <code>repeated .NodeInfo all_nodes = 6;</code>
+     * <code>repeated .NodeInfo new_nodes = 6;</code>
      */
     public java.util.List<? extends Clientproto.NodeInfoOrBuilder> 
-        getAllNodesOrBuilderList() {
-      return allNodes_;
+        getNewNodesOrBuilderList() {
+      return newNodes_;
     }
     /**
-     * <code>repeated .NodeInfo all_nodes = 6;</code>
+     * <code>repeated .NodeInfo new_nodes = 6;</code>
      */
-    public int getAllNodesCount() {
-      return allNodes_.size();
+    public int getNewNodesCount() {
+      return newNodes_.size();
     }
     /**
-     * <code>repeated .NodeInfo all_nodes = 6;</code>
+     * <code>repeated .NodeInfo new_nodes = 6;</code>
      */
-    public Clientproto.NodeInfo getAllNodes(int index) {
-      return allNodes_.get(index);
+    public Clientproto.NodeInfo getNewNodes(int index) {
+      return newNodes_.get(index);
     }
     /**
-     * <code>repeated .NodeInfo all_nodes = 6;</code>
+     * <code>repeated .NodeInfo new_nodes = 6;</code>
      */
-    public Clientproto.NodeInfoOrBuilder getAllNodesOrBuilder(
+    public Clientproto.NodeInfoOrBuilder getNewNodesOrBuilder(
         int index) {
-      return allNodes_.get(index);
+      return newNodes_.get(index);
     }
 
-    public static final int NODEID_FIELD_NUMBER = 7;
+    public static final int REMOVED_NODES_FIELD_NUMBER = 7;
+    private java.util.List<Clientproto.NodeInfo> removedNodes_;
+    /**
+     * <code>repeated .NodeInfo removed_nodes = 7;</code>
+     */
+    public java.util.List<Clientproto.NodeInfo> getRemovedNodesList() {
+      return removedNodes_;
+    }
+    /**
+     * <code>repeated .NodeInfo removed_nodes = 7;</code>
+     */
+    public java.util.List<? extends Clientproto.NodeInfoOrBuilder> 
+        getRemovedNodesOrBuilderList() {
+      return removedNodes_;
+    }
+    /**
+     * <code>repeated .NodeInfo removed_nodes = 7;</code>
+     */
+    public int getRemovedNodesCount() {
+      return removedNodes_.size();
+    }
+    /**
+     * <code>repeated .NodeInfo removed_nodes = 7;</code>
+     */
+    public Clientproto.NodeInfo getRemovedNodes(int index) {
+      return removedNodes_.get(index);
+    }
+    /**
+     * <code>repeated .NodeInfo removed_nodes = 7;</code>
+     */
+    public Clientproto.NodeInfoOrBuilder getRemovedNodesOrBuilder(
+        int index) {
+      return removedNodes_.get(index);
+    }
+
+    public static final int NODEID_FIELD_NUMBER = 8;
     private int nodeId_;
     /**
-     * <code>int32 nodeId = 7;</code>
+     * <code>int32 nodeId = 8;</code>
      */
     public int getNodeId() {
       return nodeId_;
     }
 
-    public static final int TYPE_FIELD_NUMBER = 8;
+    public static final int TYPE_FIELD_NUMBER = 9;
     private int type_;
     /**
-     * <code>.CordResponse.packetType type = 8;</code>
+     * <code>.CordResponse.packetType type = 9;</code>
      */
     public int getTypeValue() {
       return type_;
     }
     /**
-     * <code>.CordResponse.packetType type = 8;</code>
+     * <code>.CordResponse.packetType type = 9;</code>
      */
     public Clientproto.CordResponse.packetType getType() {
       Clientproto.CordResponse.packetType result = Clientproto.CordResponse.packetType.valueOf(type_);
@@ -4314,14 +3008,17 @@ public final class Clientproto {
       if (reqHandled_ != 0) {
         output.writeInt32(5, reqHandled_);
       }
-      for (int i = 0; i < allNodes_.size(); i++) {
-        output.writeMessage(6, allNodes_.get(i));
+      for (int i = 0; i < newNodes_.size(); i++) {
+        output.writeMessage(6, newNodes_.get(i));
+      }
+      for (int i = 0; i < removedNodes_.size(); i++) {
+        output.writeMessage(7, removedNodes_.get(i));
       }
       if (nodeId_ != 0) {
-        output.writeInt32(7, nodeId_);
+        output.writeInt32(8, nodeId_);
       }
       if (type_ != Clientproto.CordResponse.packetType.JOIN.getNumber()) {
-        output.writeEnum(8, type_);
+        output.writeEnum(9, type_);
       }
       unknownFields.writeTo(output);
     }
@@ -4351,17 +3048,21 @@ public final class Clientproto {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(5, reqHandled_);
       }
-      for (int i = 0; i < allNodes_.size(); i++) {
+      for (int i = 0; i < newNodes_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(6, allNodes_.get(i));
+          .computeMessageSize(6, newNodes_.get(i));
+      }
+      for (int i = 0; i < removedNodes_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(7, removedNodes_.get(i));
       }
       if (nodeId_ != 0) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(7, nodeId_);
+          .computeInt32Size(8, nodeId_);
       }
       if (type_ != Clientproto.CordResponse.packetType.JOIN.getNumber()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeEnumSize(8, type_);
+          .computeEnumSize(9, type_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -4389,8 +3090,10 @@ public final class Clientproto {
           == other.getAvailSpace());
       result = result && (getReqHandled()
           == other.getReqHandled());
-      result = result && getAllNodesList()
-          .equals(other.getAllNodesList());
+      result = result && getNewNodesList()
+          .equals(other.getNewNodesList());
+      result = result && getRemovedNodesList()
+          .equals(other.getRemovedNodesList());
       result = result && (getNodeId()
           == other.getNodeId());
       result = result && type_ == other.type_;
@@ -4416,9 +3119,13 @@ public final class Clientproto {
       hash = (53 * hash) + getAvailSpace();
       hash = (37 * hash) + REQ_HANDLED_FIELD_NUMBER;
       hash = (53 * hash) + getReqHandled();
-      if (getAllNodesCount() > 0) {
-        hash = (37 * hash) + ALL_NODES_FIELD_NUMBER;
-        hash = (53 * hash) + getAllNodesList().hashCode();
+      if (getNewNodesCount() > 0) {
+        hash = (37 * hash) + NEW_NODES_FIELD_NUMBER;
+        hash = (53 * hash) + getNewNodesList().hashCode();
+      }
+      if (getRemovedNodesCount() > 0) {
+        hash = (37 * hash) + REMOVED_NODES_FIELD_NUMBER;
+        hash = (53 * hash) + getRemovedNodesList().hashCode();
       }
       hash = (37 * hash) + NODEID_FIELD_NUMBER;
       hash = (53 * hash) + getNodeId();
@@ -4549,7 +3256,8 @@ public final class Clientproto {
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessageV3
                 .alwaysUseFieldBuilders) {
-          getAllNodesFieldBuilder();
+          getNewNodesFieldBuilder();
+          getRemovedNodesFieldBuilder();
         }
       }
       public Builder clear() {
@@ -4564,11 +3272,17 @@ public final class Clientproto {
 
         reqHandled_ = 0;
 
-        if (allNodesBuilder_ == null) {
-          allNodes_ = java.util.Collections.emptyList();
+        if (newNodesBuilder_ == null) {
+          newNodes_ = java.util.Collections.emptyList();
           bitField0_ = (bitField0_ & ~0x00000020);
         } else {
-          allNodesBuilder_.clear();
+          newNodesBuilder_.clear();
+        }
+        if (removedNodesBuilder_ == null) {
+          removedNodes_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000040);
+        } else {
+          removedNodesBuilder_.clear();
         }
         nodeId_ = 0;
 
@@ -4603,14 +3317,23 @@ public final class Clientproto {
         result.endRange_ = endRange_;
         result.availSpace_ = availSpace_;
         result.reqHandled_ = reqHandled_;
-        if (allNodesBuilder_ == null) {
+        if (newNodesBuilder_ == null) {
           if (((bitField0_ & 0x00000020) == 0x00000020)) {
-            allNodes_ = java.util.Collections.unmodifiableList(allNodes_);
+            newNodes_ = java.util.Collections.unmodifiableList(newNodes_);
             bitField0_ = (bitField0_ & ~0x00000020);
           }
-          result.allNodes_ = allNodes_;
+          result.newNodes_ = newNodes_;
         } else {
-          result.allNodes_ = allNodesBuilder_.build();
+          result.newNodes_ = newNodesBuilder_.build();
+        }
+        if (removedNodesBuilder_ == null) {
+          if (((bitField0_ & 0x00000040) == 0x00000040)) {
+            removedNodes_ = java.util.Collections.unmodifiableList(removedNodes_);
+            bitField0_ = (bitField0_ & ~0x00000040);
+          }
+          result.removedNodes_ = removedNodes_;
+        } else {
+          result.removedNodes_ = removedNodesBuilder_.build();
         }
         result.nodeId_ = nodeId_;
         result.type_ = type_;
@@ -4671,29 +3394,55 @@ public final class Clientproto {
         if (other.getReqHandled() != 0) {
           setReqHandled(other.getReqHandled());
         }
-        if (allNodesBuilder_ == null) {
-          if (!other.allNodes_.isEmpty()) {
-            if (allNodes_.isEmpty()) {
-              allNodes_ = other.allNodes_;
+        if (newNodesBuilder_ == null) {
+          if (!other.newNodes_.isEmpty()) {
+            if (newNodes_.isEmpty()) {
+              newNodes_ = other.newNodes_;
               bitField0_ = (bitField0_ & ~0x00000020);
             } else {
-              ensureAllNodesIsMutable();
-              allNodes_.addAll(other.allNodes_);
+              ensureNewNodesIsMutable();
+              newNodes_.addAll(other.newNodes_);
             }
             onChanged();
           }
         } else {
-          if (!other.allNodes_.isEmpty()) {
-            if (allNodesBuilder_.isEmpty()) {
-              allNodesBuilder_.dispose();
-              allNodesBuilder_ = null;
-              allNodes_ = other.allNodes_;
+          if (!other.newNodes_.isEmpty()) {
+            if (newNodesBuilder_.isEmpty()) {
+              newNodesBuilder_.dispose();
+              newNodesBuilder_ = null;
+              newNodes_ = other.newNodes_;
               bitField0_ = (bitField0_ & ~0x00000020);
-              allNodesBuilder_ = 
+              newNodesBuilder_ = 
                 com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
-                   getAllNodesFieldBuilder() : null;
+                   getNewNodesFieldBuilder() : null;
             } else {
-              allNodesBuilder_.addAllMessages(other.allNodes_);
+              newNodesBuilder_.addAllMessages(other.newNodes_);
+            }
+          }
+        }
+        if (removedNodesBuilder_ == null) {
+          if (!other.removedNodes_.isEmpty()) {
+            if (removedNodes_.isEmpty()) {
+              removedNodes_ = other.removedNodes_;
+              bitField0_ = (bitField0_ & ~0x00000040);
+            } else {
+              ensureRemovedNodesIsMutable();
+              removedNodes_.addAll(other.removedNodes_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.removedNodes_.isEmpty()) {
+            if (removedNodesBuilder_.isEmpty()) {
+              removedNodesBuilder_.dispose();
+              removedNodesBuilder_ = null;
+              removedNodes_ = other.removedNodes_;
+              bitField0_ = (bitField0_ & ~0x00000040);
+              removedNodesBuilder_ = 
+                com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
+                   getRemovedNodesFieldBuilder() : null;
+            } else {
+              removedNodesBuilder_.addAllMessages(other.removedNodes_);
             }
           }
         }
@@ -4861,255 +3610,495 @@ public final class Clientproto {
         return this;
       }
 
-      private java.util.List<Clientproto.NodeInfo> allNodes_ =
+      private java.util.List<Clientproto.NodeInfo> newNodes_ =
         java.util.Collections.emptyList();
-      private void ensureAllNodesIsMutable() {
+      private void ensureNewNodesIsMutable() {
         if (!((bitField0_ & 0x00000020) == 0x00000020)) {
-          allNodes_ = new java.util.ArrayList<Clientproto.NodeInfo>(allNodes_);
+          newNodes_ = new java.util.ArrayList<Clientproto.NodeInfo>(newNodes_);
           bitField0_ |= 0x00000020;
          }
       }
 
       private com.google.protobuf.RepeatedFieldBuilderV3<
-          Clientproto.NodeInfo, Clientproto.NodeInfo.Builder, Clientproto.NodeInfoOrBuilder> allNodesBuilder_;
+          Clientproto.NodeInfo, Clientproto.NodeInfo.Builder, Clientproto.NodeInfoOrBuilder> newNodesBuilder_;
 
       /**
-       * <code>repeated .NodeInfo all_nodes = 6;</code>
+       * <code>repeated .NodeInfo new_nodes = 6;</code>
        */
-      public java.util.List<Clientproto.NodeInfo> getAllNodesList() {
-        if (allNodesBuilder_ == null) {
-          return java.util.Collections.unmodifiableList(allNodes_);
+      public java.util.List<Clientproto.NodeInfo> getNewNodesList() {
+        if (newNodesBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(newNodes_);
         } else {
-          return allNodesBuilder_.getMessageList();
+          return newNodesBuilder_.getMessageList();
         }
       }
       /**
-       * <code>repeated .NodeInfo all_nodes = 6;</code>
+       * <code>repeated .NodeInfo new_nodes = 6;</code>
        */
-      public int getAllNodesCount() {
-        if (allNodesBuilder_ == null) {
-          return allNodes_.size();
+      public int getNewNodesCount() {
+        if (newNodesBuilder_ == null) {
+          return newNodes_.size();
         } else {
-          return allNodesBuilder_.getCount();
+          return newNodesBuilder_.getCount();
         }
       }
       /**
-       * <code>repeated .NodeInfo all_nodes = 6;</code>
+       * <code>repeated .NodeInfo new_nodes = 6;</code>
        */
-      public Clientproto.NodeInfo getAllNodes(int index) {
-        if (allNodesBuilder_ == null) {
-          return allNodes_.get(index);
+      public Clientproto.NodeInfo getNewNodes(int index) {
+        if (newNodesBuilder_ == null) {
+          return newNodes_.get(index);
         } else {
-          return allNodesBuilder_.getMessage(index);
+          return newNodesBuilder_.getMessage(index);
         }
       }
       /**
-       * <code>repeated .NodeInfo all_nodes = 6;</code>
+       * <code>repeated .NodeInfo new_nodes = 6;</code>
        */
-      public Builder setAllNodes(
+      public Builder setNewNodes(
           int index, Clientproto.NodeInfo value) {
-        if (allNodesBuilder_ == null) {
+        if (newNodesBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureAllNodesIsMutable();
-          allNodes_.set(index, value);
+          ensureNewNodesIsMutable();
+          newNodes_.set(index, value);
           onChanged();
         } else {
-          allNodesBuilder_.setMessage(index, value);
+          newNodesBuilder_.setMessage(index, value);
         }
         return this;
       }
       /**
-       * <code>repeated .NodeInfo all_nodes = 6;</code>
+       * <code>repeated .NodeInfo new_nodes = 6;</code>
        */
-      public Builder setAllNodes(
+      public Builder setNewNodes(
           int index, Clientproto.NodeInfo.Builder builderForValue) {
-        if (allNodesBuilder_ == null) {
-          ensureAllNodesIsMutable();
-          allNodes_.set(index, builderForValue.build());
+        if (newNodesBuilder_ == null) {
+          ensureNewNodesIsMutable();
+          newNodes_.set(index, builderForValue.build());
           onChanged();
         } else {
-          allNodesBuilder_.setMessage(index, builderForValue.build());
+          newNodesBuilder_.setMessage(index, builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .NodeInfo all_nodes = 6;</code>
+       * <code>repeated .NodeInfo new_nodes = 6;</code>
        */
-      public Builder addAllNodes(Clientproto.NodeInfo value) {
-        if (allNodesBuilder_ == null) {
+      public Builder addNewNodes(Clientproto.NodeInfo value) {
+        if (newNodesBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureAllNodesIsMutable();
-          allNodes_.add(value);
+          ensureNewNodesIsMutable();
+          newNodes_.add(value);
           onChanged();
         } else {
-          allNodesBuilder_.addMessage(value);
+          newNodesBuilder_.addMessage(value);
         }
         return this;
       }
       /**
-       * <code>repeated .NodeInfo all_nodes = 6;</code>
+       * <code>repeated .NodeInfo new_nodes = 6;</code>
        */
-      public Builder addAllNodes(
+      public Builder addNewNodes(
           int index, Clientproto.NodeInfo value) {
-        if (allNodesBuilder_ == null) {
+        if (newNodesBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureAllNodesIsMutable();
-          allNodes_.add(index, value);
+          ensureNewNodesIsMutable();
+          newNodes_.add(index, value);
           onChanged();
         } else {
-          allNodesBuilder_.addMessage(index, value);
+          newNodesBuilder_.addMessage(index, value);
         }
         return this;
       }
       /**
-       * <code>repeated .NodeInfo all_nodes = 6;</code>
+       * <code>repeated .NodeInfo new_nodes = 6;</code>
        */
-      public Builder addAllNodes(
+      public Builder addNewNodes(
           Clientproto.NodeInfo.Builder builderForValue) {
-        if (allNodesBuilder_ == null) {
-          ensureAllNodesIsMutable();
-          allNodes_.add(builderForValue.build());
+        if (newNodesBuilder_ == null) {
+          ensureNewNodesIsMutable();
+          newNodes_.add(builderForValue.build());
           onChanged();
         } else {
-          allNodesBuilder_.addMessage(builderForValue.build());
+          newNodesBuilder_.addMessage(builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .NodeInfo all_nodes = 6;</code>
+       * <code>repeated .NodeInfo new_nodes = 6;</code>
        */
-      public Builder addAllNodes(
+      public Builder addNewNodes(
           int index, Clientproto.NodeInfo.Builder builderForValue) {
-        if (allNodesBuilder_ == null) {
-          ensureAllNodesIsMutable();
-          allNodes_.add(index, builderForValue.build());
+        if (newNodesBuilder_ == null) {
+          ensureNewNodesIsMutable();
+          newNodes_.add(index, builderForValue.build());
           onChanged();
         } else {
-          allNodesBuilder_.addMessage(index, builderForValue.build());
+          newNodesBuilder_.addMessage(index, builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .NodeInfo all_nodes = 6;</code>
+       * <code>repeated .NodeInfo new_nodes = 6;</code>
        */
-      public Builder addAllAllNodes(
+      public Builder addAllNewNodes(
           java.lang.Iterable<? extends Clientproto.NodeInfo> values) {
-        if (allNodesBuilder_ == null) {
-          ensureAllNodesIsMutable();
+        if (newNodesBuilder_ == null) {
+          ensureNewNodesIsMutable();
           com.google.protobuf.AbstractMessageLite.Builder.addAll(
-              values, allNodes_);
+              values, newNodes_);
           onChanged();
         } else {
-          allNodesBuilder_.addAllMessages(values);
+          newNodesBuilder_.addAllMessages(values);
         }
         return this;
       }
       /**
-       * <code>repeated .NodeInfo all_nodes = 6;</code>
+       * <code>repeated .NodeInfo new_nodes = 6;</code>
        */
-      public Builder clearAllNodes() {
-        if (allNodesBuilder_ == null) {
-          allNodes_ = java.util.Collections.emptyList();
+      public Builder clearNewNodes() {
+        if (newNodesBuilder_ == null) {
+          newNodes_ = java.util.Collections.emptyList();
           bitField0_ = (bitField0_ & ~0x00000020);
           onChanged();
         } else {
-          allNodesBuilder_.clear();
+          newNodesBuilder_.clear();
         }
         return this;
       }
       /**
-       * <code>repeated .NodeInfo all_nodes = 6;</code>
+       * <code>repeated .NodeInfo new_nodes = 6;</code>
        */
-      public Builder removeAllNodes(int index) {
-        if (allNodesBuilder_ == null) {
-          ensureAllNodesIsMutable();
-          allNodes_.remove(index);
+      public Builder removeNewNodes(int index) {
+        if (newNodesBuilder_ == null) {
+          ensureNewNodesIsMutable();
+          newNodes_.remove(index);
           onChanged();
         } else {
-          allNodesBuilder_.remove(index);
+          newNodesBuilder_.remove(index);
         }
         return this;
       }
       /**
-       * <code>repeated .NodeInfo all_nodes = 6;</code>
+       * <code>repeated .NodeInfo new_nodes = 6;</code>
        */
-      public Clientproto.NodeInfo.Builder getAllNodesBuilder(
+      public Clientproto.NodeInfo.Builder getNewNodesBuilder(
           int index) {
-        return getAllNodesFieldBuilder().getBuilder(index);
+        return getNewNodesFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .NodeInfo all_nodes = 6;</code>
+       * <code>repeated .NodeInfo new_nodes = 6;</code>
        */
-      public Clientproto.NodeInfoOrBuilder getAllNodesOrBuilder(
+      public Clientproto.NodeInfoOrBuilder getNewNodesOrBuilder(
           int index) {
-        if (allNodesBuilder_ == null) {
-          return allNodes_.get(index);  } else {
-          return allNodesBuilder_.getMessageOrBuilder(index);
+        if (newNodesBuilder_ == null) {
+          return newNodes_.get(index);  } else {
+          return newNodesBuilder_.getMessageOrBuilder(index);
         }
       }
       /**
-       * <code>repeated .NodeInfo all_nodes = 6;</code>
+       * <code>repeated .NodeInfo new_nodes = 6;</code>
        */
       public java.util.List<? extends Clientproto.NodeInfoOrBuilder> 
-           getAllNodesOrBuilderList() {
-        if (allNodesBuilder_ != null) {
-          return allNodesBuilder_.getMessageOrBuilderList();
+           getNewNodesOrBuilderList() {
+        if (newNodesBuilder_ != null) {
+          return newNodesBuilder_.getMessageOrBuilderList();
         } else {
-          return java.util.Collections.unmodifiableList(allNodes_);
+          return java.util.Collections.unmodifiableList(newNodes_);
         }
       }
       /**
-       * <code>repeated .NodeInfo all_nodes = 6;</code>
+       * <code>repeated .NodeInfo new_nodes = 6;</code>
        */
-      public Clientproto.NodeInfo.Builder addAllNodesBuilder() {
-        return getAllNodesFieldBuilder().addBuilder(
+      public Clientproto.NodeInfo.Builder addNewNodesBuilder() {
+        return getNewNodesFieldBuilder().addBuilder(
             Clientproto.NodeInfo.getDefaultInstance());
       }
       /**
-       * <code>repeated .NodeInfo all_nodes = 6;</code>
+       * <code>repeated .NodeInfo new_nodes = 6;</code>
        */
-      public Clientproto.NodeInfo.Builder addAllNodesBuilder(
+      public Clientproto.NodeInfo.Builder addNewNodesBuilder(
           int index) {
-        return getAllNodesFieldBuilder().addBuilder(
+        return getNewNodesFieldBuilder().addBuilder(
             index, Clientproto.NodeInfo.getDefaultInstance());
       }
       /**
-       * <code>repeated .NodeInfo all_nodes = 6;</code>
+       * <code>repeated .NodeInfo new_nodes = 6;</code>
        */
       public java.util.List<Clientproto.NodeInfo.Builder> 
-           getAllNodesBuilderList() {
-        return getAllNodesFieldBuilder().getBuilderList();
+           getNewNodesBuilderList() {
+        return getNewNodesFieldBuilder().getBuilderList();
       }
       private com.google.protobuf.RepeatedFieldBuilderV3<
           Clientproto.NodeInfo, Clientproto.NodeInfo.Builder, Clientproto.NodeInfoOrBuilder> 
-          getAllNodesFieldBuilder() {
-        if (allNodesBuilder_ == null) {
-          allNodesBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
+          getNewNodesFieldBuilder() {
+        if (newNodesBuilder_ == null) {
+          newNodesBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
               Clientproto.NodeInfo, Clientproto.NodeInfo.Builder, Clientproto.NodeInfoOrBuilder>(
-                  allNodes_,
+                  newNodes_,
                   ((bitField0_ & 0x00000020) == 0x00000020),
                   getParentForChildren(),
                   isClean());
-          allNodes_ = null;
+          newNodes_ = null;
         }
-        return allNodesBuilder_;
+        return newNodesBuilder_;
+      }
+
+      private java.util.List<Clientproto.NodeInfo> removedNodes_ =
+        java.util.Collections.emptyList();
+      private void ensureRemovedNodesIsMutable() {
+        if (!((bitField0_ & 0x00000040) == 0x00000040)) {
+          removedNodes_ = new java.util.ArrayList<Clientproto.NodeInfo>(removedNodes_);
+          bitField0_ |= 0x00000040;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilderV3<
+          Clientproto.NodeInfo, Clientproto.NodeInfo.Builder, Clientproto.NodeInfoOrBuilder> removedNodesBuilder_;
+
+      /**
+       * <code>repeated .NodeInfo removed_nodes = 7;</code>
+       */
+      public java.util.List<Clientproto.NodeInfo> getRemovedNodesList() {
+        if (removedNodesBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(removedNodes_);
+        } else {
+          return removedNodesBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <code>repeated .NodeInfo removed_nodes = 7;</code>
+       */
+      public int getRemovedNodesCount() {
+        if (removedNodesBuilder_ == null) {
+          return removedNodes_.size();
+        } else {
+          return removedNodesBuilder_.getCount();
+        }
+      }
+      /**
+       * <code>repeated .NodeInfo removed_nodes = 7;</code>
+       */
+      public Clientproto.NodeInfo getRemovedNodes(int index) {
+        if (removedNodesBuilder_ == null) {
+          return removedNodes_.get(index);
+        } else {
+          return removedNodesBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <code>repeated .NodeInfo removed_nodes = 7;</code>
+       */
+      public Builder setRemovedNodes(
+          int index, Clientproto.NodeInfo value) {
+        if (removedNodesBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureRemovedNodesIsMutable();
+          removedNodes_.set(index, value);
+          onChanged();
+        } else {
+          removedNodesBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .NodeInfo removed_nodes = 7;</code>
+       */
+      public Builder setRemovedNodes(
+          int index, Clientproto.NodeInfo.Builder builderForValue) {
+        if (removedNodesBuilder_ == null) {
+          ensureRemovedNodesIsMutable();
+          removedNodes_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          removedNodesBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .NodeInfo removed_nodes = 7;</code>
+       */
+      public Builder addRemovedNodes(Clientproto.NodeInfo value) {
+        if (removedNodesBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureRemovedNodesIsMutable();
+          removedNodes_.add(value);
+          onChanged();
+        } else {
+          removedNodesBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .NodeInfo removed_nodes = 7;</code>
+       */
+      public Builder addRemovedNodes(
+          int index, Clientproto.NodeInfo value) {
+        if (removedNodesBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureRemovedNodesIsMutable();
+          removedNodes_.add(index, value);
+          onChanged();
+        } else {
+          removedNodesBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .NodeInfo removed_nodes = 7;</code>
+       */
+      public Builder addRemovedNodes(
+          Clientproto.NodeInfo.Builder builderForValue) {
+        if (removedNodesBuilder_ == null) {
+          ensureRemovedNodesIsMutable();
+          removedNodes_.add(builderForValue.build());
+          onChanged();
+        } else {
+          removedNodesBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .NodeInfo removed_nodes = 7;</code>
+       */
+      public Builder addRemovedNodes(
+          int index, Clientproto.NodeInfo.Builder builderForValue) {
+        if (removedNodesBuilder_ == null) {
+          ensureRemovedNodesIsMutable();
+          removedNodes_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          removedNodesBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .NodeInfo removed_nodes = 7;</code>
+       */
+      public Builder addAllRemovedNodes(
+          java.lang.Iterable<? extends Clientproto.NodeInfo> values) {
+        if (removedNodesBuilder_ == null) {
+          ensureRemovedNodesIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, removedNodes_);
+          onChanged();
+        } else {
+          removedNodesBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .NodeInfo removed_nodes = 7;</code>
+       */
+      public Builder clearRemovedNodes() {
+        if (removedNodesBuilder_ == null) {
+          removedNodes_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000040);
+          onChanged();
+        } else {
+          removedNodesBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .NodeInfo removed_nodes = 7;</code>
+       */
+      public Builder removeRemovedNodes(int index) {
+        if (removedNodesBuilder_ == null) {
+          ensureRemovedNodesIsMutable();
+          removedNodes_.remove(index);
+          onChanged();
+        } else {
+          removedNodesBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .NodeInfo removed_nodes = 7;</code>
+       */
+      public Clientproto.NodeInfo.Builder getRemovedNodesBuilder(
+          int index) {
+        return getRemovedNodesFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <code>repeated .NodeInfo removed_nodes = 7;</code>
+       */
+      public Clientproto.NodeInfoOrBuilder getRemovedNodesOrBuilder(
+          int index) {
+        if (removedNodesBuilder_ == null) {
+          return removedNodes_.get(index);  } else {
+          return removedNodesBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <code>repeated .NodeInfo removed_nodes = 7;</code>
+       */
+      public java.util.List<? extends Clientproto.NodeInfoOrBuilder> 
+           getRemovedNodesOrBuilderList() {
+        if (removedNodesBuilder_ != null) {
+          return removedNodesBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(removedNodes_);
+        }
+      }
+      /**
+       * <code>repeated .NodeInfo removed_nodes = 7;</code>
+       */
+      public Clientproto.NodeInfo.Builder addRemovedNodesBuilder() {
+        return getRemovedNodesFieldBuilder().addBuilder(
+            Clientproto.NodeInfo.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .NodeInfo removed_nodes = 7;</code>
+       */
+      public Clientproto.NodeInfo.Builder addRemovedNodesBuilder(
+          int index) {
+        return getRemovedNodesFieldBuilder().addBuilder(
+            index, Clientproto.NodeInfo.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .NodeInfo removed_nodes = 7;</code>
+       */
+      public java.util.List<Clientproto.NodeInfo.Builder> 
+           getRemovedNodesBuilderList() {
+        return getRemovedNodesFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilderV3<
+          Clientproto.NodeInfo, Clientproto.NodeInfo.Builder, Clientproto.NodeInfoOrBuilder> 
+          getRemovedNodesFieldBuilder() {
+        if (removedNodesBuilder_ == null) {
+          removedNodesBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
+              Clientproto.NodeInfo, Clientproto.NodeInfo.Builder, Clientproto.NodeInfoOrBuilder>(
+                  removedNodes_,
+                  ((bitField0_ & 0x00000040) == 0x00000040),
+                  getParentForChildren(),
+                  isClean());
+          removedNodes_ = null;
+        }
+        return removedNodesBuilder_;
       }
 
       private int nodeId_ ;
       /**
-       * <code>int32 nodeId = 7;</code>
+       * <code>int32 nodeId = 8;</code>
        */
       public int getNodeId() {
         return nodeId_;
       }
       /**
-       * <code>int32 nodeId = 7;</code>
+       * <code>int32 nodeId = 8;</code>
        */
       public Builder setNodeId(int value) {
         
@@ -5118,7 +4107,7 @@ public final class Clientproto {
         return this;
       }
       /**
-       * <code>int32 nodeId = 7;</code>
+       * <code>int32 nodeId = 8;</code>
        */
       public Builder clearNodeId() {
         
@@ -5129,13 +4118,13 @@ public final class Clientproto {
 
       private int type_ = 0;
       /**
-       * <code>.CordResponse.packetType type = 8;</code>
+       * <code>.CordResponse.packetType type = 9;</code>
        */
       public int getTypeValue() {
         return type_;
       }
       /**
-       * <code>.CordResponse.packetType type = 8;</code>
+       * <code>.CordResponse.packetType type = 9;</code>
        */
       public Builder setTypeValue(int value) {
         type_ = value;
@@ -5143,14 +4132,14 @@ public final class Clientproto {
         return this;
       }
       /**
-       * <code>.CordResponse.packetType type = 8;</code>
+       * <code>.CordResponse.packetType type = 9;</code>
        */
       public Clientproto.CordResponse.packetType getType() {
         Clientproto.CordResponse.packetType result = Clientproto.CordResponse.packetType.valueOf(type_);
         return result == null ? Clientproto.CordResponse.packetType.UNRECOGNIZED : result;
       }
       /**
-       * <code>.CordResponse.packetType type = 8;</code>
+       * <code>.CordResponse.packetType type = 9;</code>
        */
       public Builder setType(Clientproto.CordResponse.packetType value) {
         if (value == null) {
@@ -5162,7 +4151,7 @@ public final class Clientproto {
         return this;
       }
       /**
-       * <code>.CordResponse.packetType type = 8;</code>
+       * <code>.CordResponse.packetType type = 9;</code>
        */
       public Builder clearType() {
         
@@ -6815,23 +5804,58 @@ public final class Clientproto {
 
   }
 
-  public interface coordinatorMessageOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:coordinatorMessage)
+  public interface FileDataOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:FileData)
       com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>bytes data = 1;</code>
+     */
+    com.google.protobuf.ByteString getData();
+
+    /**
+     * <code>int32 chunk_no = 2;</code>
+     */
+    int getChunkNo();
+
+    /**
+     * <code>int32 num_chunks = 3;</code>
+     */
+    int getNumChunks();
+
+    /**
+     * <code>string filename = 4;</code>
+     */
+    java.lang.String getFilename();
+    /**
+     * <code>string filename = 4;</code>
+     */
+    com.google.protobuf.ByteString
+        getFilenameBytes();
+
+    /**
+     * <code>int32 replicaNum = 5;</code>
+     */
+    int getReplicaNum();
   }
   /**
-   * Protobuf type {@code coordinatorMessage}
+   * Protobuf type {@code FileData}
    */
-  public  static final class coordinatorMessage extends
+  public  static final class FileData extends
       com.google.protobuf.GeneratedMessageV3 implements
-      // @@protoc_insertion_point(message_implements:coordinatorMessage)
-      coordinatorMessageOrBuilder {
+      // @@protoc_insertion_point(message_implements:FileData)
+      FileDataOrBuilder {
   private static final long serialVersionUID = 0L;
-    // Use coordinatorMessage.newBuilder() to construct.
-    private coordinatorMessage(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+    // Use FileData.newBuilder() to construct.
+    private FileData(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
       super(builder);
     }
-    private coordinatorMessage() {
+    private FileData() {
+      data_ = com.google.protobuf.ByteString.EMPTY;
+      chunkNo_ = 0;
+      numChunks_ = 0;
+      filename_ = "";
+      replicaNum_ = 0;
     }
 
     @java.lang.Override
@@ -6839,7 +5863,7 @@ public final class Clientproto {
     getUnknownFields() {
       return this.unknownFields;
     }
-    private coordinatorMessage(
+    private FileData(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -6847,6 +5871,7 @@ public final class Clientproto {
       if (extensionRegistry == null) {
         throw new java.lang.NullPointerException();
       }
+      int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
       try {
@@ -6864,6 +5889,32 @@ public final class Clientproto {
               }
               break;
             }
+            case 10: {
+
+              data_ = input.readBytes();
+              break;
+            }
+            case 16: {
+
+              chunkNo_ = input.readInt32();
+              break;
+            }
+            case 24: {
+
+              numChunks_ = input.readInt32();
+              break;
+            }
+            case 34: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              filename_ = s;
+              break;
+            }
+            case 40: {
+
+              replicaNum_ = input.readInt32();
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -6878,116 +5929,84 @@ public final class Clientproto {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return Clientproto.internal_static_coordinatorMessage_descriptor;
+      return Clientproto.internal_static_FileData_descriptor;
     }
 
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return Clientproto.internal_static_coordinatorMessage_fieldAccessorTable
+      return Clientproto.internal_static_FileData_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              Clientproto.coordinatorMessage.class, Clientproto.coordinatorMessage.Builder.class);
+              Clientproto.FileData.class, Clientproto.FileData.Builder.class);
     }
 
+    public static final int DATA_FIELD_NUMBER = 1;
+    private com.google.protobuf.ByteString data_;
     /**
-     * <pre>
-     *Add data for the storage node to do something with the ring
-     * </pre>
-     *
-     * Protobuf enum {@code coordinatorMessage.packetType}
+     * <code>bytes data = 1;</code>
      */
-    public enum packetType
-        implements com.google.protobuf.ProtocolMessageEnum {
-      /**
-       * <code>NEWNODE = 0;</code>
-       */
-      NEWNODE(0),
-      /**
-       * <code>CLIENTREQUEST = 1;</code>
-       */
-      CLIENTREQUEST(1),
-      UNRECOGNIZED(-1),
-      ;
+    public com.google.protobuf.ByteString getData() {
+      return data_;
+    }
 
-      /**
-       * <code>NEWNODE = 0;</code>
-       */
-      public static final int NEWNODE_VALUE = 0;
-      /**
-       * <code>CLIENTREQUEST = 1;</code>
-       */
-      public static final int CLIENTREQUEST_VALUE = 1;
+    public static final int CHUNK_NO_FIELD_NUMBER = 2;
+    private int chunkNo_;
+    /**
+     * <code>int32 chunk_no = 2;</code>
+     */
+    public int getChunkNo() {
+      return chunkNo_;
+    }
 
+    public static final int NUM_CHUNKS_FIELD_NUMBER = 3;
+    private int numChunks_;
+    /**
+     * <code>int32 num_chunks = 3;</code>
+     */
+    public int getNumChunks() {
+      return numChunks_;
+    }
 
-      public final int getNumber() {
-        if (this == UNRECOGNIZED) {
-          throw new java.lang.IllegalArgumentException(
-              "Can't get the number of an unknown enum value.");
-        }
-        return value;
+    public static final int FILENAME_FIELD_NUMBER = 4;
+    private volatile java.lang.Object filename_;
+    /**
+     * <code>string filename = 4;</code>
+     */
+    public java.lang.String getFilename() {
+      java.lang.Object ref = filename_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        filename_ = s;
+        return s;
       }
-
-      /**
-       * @deprecated Use {@link #forNumber(int)} instead.
-       */
-      @java.lang.Deprecated
-      public static packetType valueOf(int value) {
-        return forNumber(value);
+    }
+    /**
+     * <code>string filename = 4;</code>
+     */
+    public com.google.protobuf.ByteString
+        getFilenameBytes() {
+      java.lang.Object ref = filename_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        filename_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
       }
+    }
 
-      public static packetType forNumber(int value) {
-        switch (value) {
-          case 0: return NEWNODE;
-          case 1: return CLIENTREQUEST;
-          default: return null;
-        }
-      }
-
-      public static com.google.protobuf.Internal.EnumLiteMap<packetType>
-          internalGetValueMap() {
-        return internalValueMap;
-      }
-      private static final com.google.protobuf.Internal.EnumLiteMap<
-          packetType> internalValueMap =
-            new com.google.protobuf.Internal.EnumLiteMap<packetType>() {
-              public packetType findValueByNumber(int number) {
-                return packetType.forNumber(number);
-              }
-            };
-
-      public final com.google.protobuf.Descriptors.EnumValueDescriptor
-          getValueDescriptor() {
-        return getDescriptor().getValues().get(ordinal());
-      }
-      public final com.google.protobuf.Descriptors.EnumDescriptor
-          getDescriptorForType() {
-        return getDescriptor();
-      }
-      public static final com.google.protobuf.Descriptors.EnumDescriptor
-          getDescriptor() {
-        return Clientproto.coordinatorMessage.getDescriptor().getEnumTypes().get(0);
-      }
-
-      private static final packetType[] VALUES = values();
-
-      public static packetType valueOf(
-          com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
-        if (desc.getType() != getDescriptor()) {
-          throw new java.lang.IllegalArgumentException(
-            "EnumValueDescriptor is not for this type.");
-        }
-        if (desc.getIndex() == -1) {
-          return UNRECOGNIZED;
-        }
-        return VALUES[desc.getIndex()];
-      }
-
-      private final int value;
-
-      private packetType(int value) {
-        this.value = value;
-      }
-
-      // @@protoc_insertion_point(enum_scope:coordinatorMessage.packetType)
+    public static final int REPLICANUM_FIELD_NUMBER = 5;
+    private int replicaNum_;
+    /**
+     * <code>int32 replicaNum = 5;</code>
+     */
+    public int getReplicaNum() {
+      return replicaNum_;
     }
 
     private byte memoizedIsInitialized = -1;
@@ -7002,6 +6021,21 @@ public final class Clientproto {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
+      if (!data_.isEmpty()) {
+        output.writeBytes(1, data_);
+      }
+      if (chunkNo_ != 0) {
+        output.writeInt32(2, chunkNo_);
+      }
+      if (numChunks_ != 0) {
+        output.writeInt32(3, numChunks_);
+      }
+      if (!getFilenameBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 4, filename_);
+      }
+      if (replicaNum_ != 0) {
+        output.writeInt32(5, replicaNum_);
+      }
       unknownFields.writeTo(output);
     }
 
@@ -7010,6 +6044,25 @@ public final class Clientproto {
       if (size != -1) return size;
 
       size = 0;
+      if (!data_.isEmpty()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(1, data_);
+      }
+      if (chunkNo_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(2, chunkNo_);
+      }
+      if (numChunks_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(3, numChunks_);
+      }
+      if (!getFilenameBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(4, filename_);
+      }
+      if (replicaNum_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(5, replicaNum_);
+      }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
       return size;
@@ -7020,12 +6073,22 @@ public final class Clientproto {
       if (obj == this) {
        return true;
       }
-      if (!(obj instanceof Clientproto.coordinatorMessage)) {
+      if (!(obj instanceof Clientproto.FileData)) {
         return super.equals(obj);
       }
-      Clientproto.coordinatorMessage other = (Clientproto.coordinatorMessage) obj;
+      Clientproto.FileData other = (Clientproto.FileData) obj;
 
       boolean result = true;
+      result = result && getData()
+          .equals(other.getData());
+      result = result && (getChunkNo()
+          == other.getChunkNo());
+      result = result && (getNumChunks()
+          == other.getNumChunks());
+      result = result && getFilename()
+          .equals(other.getFilename());
+      result = result && (getReplicaNum()
+          == other.getReplicaNum());
       result = result && unknownFields.equals(other.unknownFields);
       return result;
     }
@@ -7037,74 +6100,84 @@ public final class Clientproto {
       }
       int hash = 41;
       hash = (19 * hash) + getDescriptor().hashCode();
+      hash = (37 * hash) + DATA_FIELD_NUMBER;
+      hash = (53 * hash) + getData().hashCode();
+      hash = (37 * hash) + CHUNK_NO_FIELD_NUMBER;
+      hash = (53 * hash) + getChunkNo();
+      hash = (37 * hash) + NUM_CHUNKS_FIELD_NUMBER;
+      hash = (53 * hash) + getNumChunks();
+      hash = (37 * hash) + FILENAME_FIELD_NUMBER;
+      hash = (53 * hash) + getFilename().hashCode();
+      hash = (37 * hash) + REPLICANUM_FIELD_NUMBER;
+      hash = (53 * hash) + getReplicaNum();
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
     }
 
-    public static Clientproto.coordinatorMessage parseFrom(
+    public static Clientproto.FileData parseFrom(
         java.nio.ByteBuffer data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static Clientproto.coordinatorMessage parseFrom(
+    public static Clientproto.FileData parseFrom(
         java.nio.ByteBuffer data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static Clientproto.coordinatorMessage parseFrom(
+    public static Clientproto.FileData parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static Clientproto.coordinatorMessage parseFrom(
+    public static Clientproto.FileData parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static Clientproto.coordinatorMessage parseFrom(byte[] data)
+    public static Clientproto.FileData parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static Clientproto.coordinatorMessage parseFrom(
+    public static Clientproto.FileData parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static Clientproto.coordinatorMessage parseFrom(java.io.InputStream input)
+    public static Clientproto.FileData parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
-    public static Clientproto.coordinatorMessage parseFrom(
+    public static Clientproto.FileData parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input, extensionRegistry);
     }
-    public static Clientproto.coordinatorMessage parseDelimitedFrom(java.io.InputStream input)
+    public static Clientproto.FileData parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input);
     }
-    public static Clientproto.coordinatorMessage parseDelimitedFrom(
+    public static Clientproto.FileData parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
     }
-    public static Clientproto.coordinatorMessage parseFrom(
+    public static Clientproto.FileData parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
-    public static Clientproto.coordinatorMessage parseFrom(
+    public static Clientproto.FileData parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -7116,7 +6189,7 @@ public final class Clientproto {
     public static Builder newBuilder() {
       return DEFAULT_INSTANCE.toBuilder();
     }
-    public static Builder newBuilder(Clientproto.coordinatorMessage prototype) {
+    public static Builder newBuilder(Clientproto.FileData prototype) {
       return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
     }
     public Builder toBuilder() {
@@ -7131,25 +6204,25 @@ public final class Clientproto {
       return builder;
     }
     /**
-     * Protobuf type {@code coordinatorMessage}
+     * Protobuf type {@code FileData}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:coordinatorMessage)
-        Clientproto.coordinatorMessageOrBuilder {
+        // @@protoc_insertion_point(builder_implements:FileData)
+        Clientproto.FileDataOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return Clientproto.internal_static_coordinatorMessage_descriptor;
+        return Clientproto.internal_static_FileData_descriptor;
       }
 
       protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return Clientproto.internal_static_coordinatorMessage_fieldAccessorTable
+        return Clientproto.internal_static_FileData_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
-                Clientproto.coordinatorMessage.class, Clientproto.coordinatorMessage.Builder.class);
+                Clientproto.FileData.class, Clientproto.FileData.Builder.class);
       }
 
-      // Construct using Clientproto.coordinatorMessage.newBuilder()
+      // Construct using Clientproto.FileData.newBuilder()
       private Builder() {
         maybeForceBuilderInitialization();
       }
@@ -7166,28 +6239,43 @@ public final class Clientproto {
       }
       public Builder clear() {
         super.clear();
+        data_ = com.google.protobuf.ByteString.EMPTY;
+
+        chunkNo_ = 0;
+
+        numChunks_ = 0;
+
+        filename_ = "";
+
+        replicaNum_ = 0;
+
         return this;
       }
 
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return Clientproto.internal_static_coordinatorMessage_descriptor;
+        return Clientproto.internal_static_FileData_descriptor;
       }
 
-      public Clientproto.coordinatorMessage getDefaultInstanceForType() {
-        return Clientproto.coordinatorMessage.getDefaultInstance();
+      public Clientproto.FileData getDefaultInstanceForType() {
+        return Clientproto.FileData.getDefaultInstance();
       }
 
-      public Clientproto.coordinatorMessage build() {
-        Clientproto.coordinatorMessage result = buildPartial();
+      public Clientproto.FileData build() {
+        Clientproto.FileData result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
         return result;
       }
 
-      public Clientproto.coordinatorMessage buildPartial() {
-        Clientproto.coordinatorMessage result = new Clientproto.coordinatorMessage(this);
+      public Clientproto.FileData buildPartial() {
+        Clientproto.FileData result = new Clientproto.FileData(this);
+        result.data_ = data_;
+        result.chunkNo_ = chunkNo_;
+        result.numChunks_ = numChunks_;
+        result.filename_ = filename_;
+        result.replicaNum_ = replicaNum_;
         onBuilt();
         return result;
       }
@@ -7219,16 +6307,32 @@ public final class Clientproto {
         return (Builder) super.addRepeatedField(field, value);
       }
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof Clientproto.coordinatorMessage) {
-          return mergeFrom((Clientproto.coordinatorMessage)other);
+        if (other instanceof Clientproto.FileData) {
+          return mergeFrom((Clientproto.FileData)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
 
-      public Builder mergeFrom(Clientproto.coordinatorMessage other) {
-        if (other == Clientproto.coordinatorMessage.getDefaultInstance()) return this;
+      public Builder mergeFrom(Clientproto.FileData other) {
+        if (other == Clientproto.FileData.getDefaultInstance()) return this;
+        if (other.getData() != com.google.protobuf.ByteString.EMPTY) {
+          setData(other.getData());
+        }
+        if (other.getChunkNo() != 0) {
+          setChunkNo(other.getChunkNo());
+        }
+        if (other.getNumChunks() != 0) {
+          setNumChunks(other.getNumChunks());
+        }
+        if (!other.getFilename().isEmpty()) {
+          filename_ = other.filename_;
+          onChanged();
+        }
+        if (other.getReplicaNum() != 0) {
+          setReplicaNum(other.getReplicaNum());
+        }
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
         return this;
@@ -7242,17 +6346,193 @@ public final class Clientproto {
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        Clientproto.coordinatorMessage parsedMessage = null;
+        Clientproto.FileData parsedMessage = null;
         try {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (Clientproto.coordinatorMessage) e.getUnfinishedMessage();
+          parsedMessage = (Clientproto.FileData) e.getUnfinishedMessage();
           throw e.unwrapIOException();
         } finally {
           if (parsedMessage != null) {
             mergeFrom(parsedMessage);
           }
         }
+        return this;
+      }
+
+      private com.google.protobuf.ByteString data_ = com.google.protobuf.ByteString.EMPTY;
+      /**
+       * <code>bytes data = 1;</code>
+       */
+      public com.google.protobuf.ByteString getData() {
+        return data_;
+      }
+      /**
+       * <code>bytes data = 1;</code>
+       */
+      public Builder setData(com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        data_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>bytes data = 1;</code>
+       */
+      public Builder clearData() {
+        
+        data_ = getDefaultInstance().getData();
+        onChanged();
+        return this;
+      }
+
+      private int chunkNo_ ;
+      /**
+       * <code>int32 chunk_no = 2;</code>
+       */
+      public int getChunkNo() {
+        return chunkNo_;
+      }
+      /**
+       * <code>int32 chunk_no = 2;</code>
+       */
+      public Builder setChunkNo(int value) {
+        
+        chunkNo_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>int32 chunk_no = 2;</code>
+       */
+      public Builder clearChunkNo() {
+        
+        chunkNo_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private int numChunks_ ;
+      /**
+       * <code>int32 num_chunks = 3;</code>
+       */
+      public int getNumChunks() {
+        return numChunks_;
+      }
+      /**
+       * <code>int32 num_chunks = 3;</code>
+       */
+      public Builder setNumChunks(int value) {
+        
+        numChunks_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>int32 num_chunks = 3;</code>
+       */
+      public Builder clearNumChunks() {
+        
+        numChunks_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object filename_ = "";
+      /**
+       * <code>string filename = 4;</code>
+       */
+      public java.lang.String getFilename() {
+        java.lang.Object ref = filename_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          filename_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>string filename = 4;</code>
+       */
+      public com.google.protobuf.ByteString
+          getFilenameBytes() {
+        java.lang.Object ref = filename_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          filename_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string filename = 4;</code>
+       */
+      public Builder setFilename(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        filename_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string filename = 4;</code>
+       */
+      public Builder clearFilename() {
+        
+        filename_ = getDefaultInstance().getFilename();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string filename = 4;</code>
+       */
+      public Builder setFilenameBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        filename_ = value;
+        onChanged();
+        return this;
+      }
+
+      private int replicaNum_ ;
+      /**
+       * <code>int32 replicaNum = 5;</code>
+       */
+      public int getReplicaNum() {
+        return replicaNum_;
+      }
+      /**
+       * <code>int32 replicaNum = 5;</code>
+       */
+      public Builder setReplicaNum(int value) {
+        
+        replicaNum_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>int32 replicaNum = 5;</code>
+       */
+      public Builder clearReplicaNum() {
+        
+        replicaNum_ = 0;
+        onChanged();
         return this;
       }
       public final Builder setUnknownFields(
@@ -7266,39 +6546,39 @@ public final class Clientproto {
       }
 
 
-      // @@protoc_insertion_point(builder_scope:coordinatorMessage)
+      // @@protoc_insertion_point(builder_scope:FileData)
     }
 
-    // @@protoc_insertion_point(class_scope:coordinatorMessage)
-    private static final Clientproto.coordinatorMessage DEFAULT_INSTANCE;
+    // @@protoc_insertion_point(class_scope:FileData)
+    private static final Clientproto.FileData DEFAULT_INSTANCE;
     static {
-      DEFAULT_INSTANCE = new Clientproto.coordinatorMessage();
+      DEFAULT_INSTANCE = new Clientproto.FileData();
     }
 
-    public static Clientproto.coordinatorMessage getDefaultInstance() {
+    public static Clientproto.FileData getDefaultInstance() {
       return DEFAULT_INSTANCE;
     }
 
-    private static final com.google.protobuf.Parser<coordinatorMessage>
-        PARSER = new com.google.protobuf.AbstractParser<coordinatorMessage>() {
-      public coordinatorMessage parsePartialFrom(
+    private static final com.google.protobuf.Parser<FileData>
+        PARSER = new com.google.protobuf.AbstractParser<FileData>() {
+      public FileData parsePartialFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws com.google.protobuf.InvalidProtocolBufferException {
-        return new coordinatorMessage(input, extensionRegistry);
+        return new FileData(input, extensionRegistry);
       }
     };
 
-    public static com.google.protobuf.Parser<coordinatorMessage> parser() {
+    public static com.google.protobuf.Parser<FileData> parser() {
       return PARSER;
     }
 
     @java.lang.Override
-    public com.google.protobuf.Parser<coordinatorMessage> getParserForType() {
+    public com.google.protobuf.Parser<FileData> getParserForType() {
       return PARSER;
     }
 
-    public Clientproto.coordinatorMessage getDefaultInstanceForType() {
+    public Clientproto.FileData getDefaultInstanceForType() {
       return DEFAULT_INSTANCE;
     }
 
@@ -7345,6 +6625,16 @@ public final class Clientproto {
      * <code>int32 neighbor = 6;</code>
      */
     int getNeighbor();
+
+    /**
+     * <code>int32 avail_space = 7;</code>
+     */
+    int getAvailSpace();
+
+    /**
+     * <code>int32 tot_request = 8;</code>
+     */
+    int getTotRequest();
   }
   /**
    * Protobuf type {@code NodeInfo}
@@ -7363,6 +6653,8 @@ public final class Clientproto {
       ip_ = "";
       port_ = 0;
       neighbor_ = 0;
+      availSpace_ = 0;
+      totRequest_ = 0;
     }
 
     @java.lang.Override
@@ -7428,6 +6720,16 @@ public final class Clientproto {
             case 48: {
 
               neighbor_ = input.readInt32();
+              break;
+            }
+            case 56: {
+
+              availSpace_ = input.readInt32();
+              break;
+            }
+            case 64: {
+
+              totRequest_ = input.readInt32();
               break;
             }
           }
@@ -7536,6 +6838,24 @@ public final class Clientproto {
       return neighbor_;
     }
 
+    public static final int AVAIL_SPACE_FIELD_NUMBER = 7;
+    private int availSpace_;
+    /**
+     * <code>int32 avail_space = 7;</code>
+     */
+    public int getAvailSpace() {
+      return availSpace_;
+    }
+
+    public static final int TOT_REQUEST_FIELD_NUMBER = 8;
+    private int totRequest_;
+    /**
+     * <code>int32 tot_request = 8;</code>
+     */
+    public int getTotRequest() {
+      return totRequest_;
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -7563,6 +6883,12 @@ public final class Clientproto {
       if (neighbor_ != 0) {
         output.writeInt32(6, neighbor_);
       }
+      if (availSpace_ != 0) {
+        output.writeInt32(7, availSpace_);
+      }
+      if (totRequest_ != 0) {
+        output.writeInt32(8, totRequest_);
+      }
       unknownFields.writeTo(output);
     }
 
@@ -7589,6 +6915,14 @@ public final class Clientproto {
       if (neighbor_ != 0) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(6, neighbor_);
+      }
+      if (availSpace_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(7, availSpace_);
+      }
+      if (totRequest_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(8, totRequest_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -7619,6 +6953,10 @@ public final class Clientproto {
       }
       result = result && (getNeighbor()
           == other.getNeighbor());
+      result = result && (getAvailSpace()
+          == other.getAvailSpace());
+      result = result && (getTotRequest()
+          == other.getTotRequest());
       result = result && unknownFields.equals(other.unknownFields);
       return result;
     }
@@ -7642,6 +6980,10 @@ public final class Clientproto {
       }
       hash = (37 * hash) + NEIGHBOR_FIELD_NUMBER;
       hash = (53 * hash) + getNeighbor();
+      hash = (37 * hash) + AVAIL_SPACE_FIELD_NUMBER;
+      hash = (53 * hash) + getAvailSpace();
+      hash = (37 * hash) + TOT_REQUEST_FIELD_NUMBER;
+      hash = (53 * hash) + getTotRequest();
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -7785,6 +7127,10 @@ public final class Clientproto {
         }
         neighbor_ = 0;
 
+        availSpace_ = 0;
+
+        totRequest_ = 0;
+
         return this;
       }
 
@@ -7816,6 +7162,8 @@ public final class Clientproto {
           result.position_ = positionBuilder_.build();
         }
         result.neighbor_ = neighbor_;
+        result.availSpace_ = availSpace_;
+        result.totRequest_ = totRequest_;
         onBuilt();
         return result;
       }
@@ -7872,6 +7220,12 @@ public final class Clientproto {
         }
         if (other.getNeighbor() != 0) {
           setNeighbor(other.getNeighbor());
+        }
+        if (other.getAvailSpace() != 0) {
+          setAvailSpace(other.getAvailSpace());
+        }
+        if (other.getTotRequest() != 0) {
+          setTotRequest(other.getTotRequest());
         }
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
@@ -8160,6 +7514,58 @@ public final class Clientproto {
       public Builder clearNeighbor() {
         
         neighbor_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private int availSpace_ ;
+      /**
+       * <code>int32 avail_space = 7;</code>
+       */
+      public int getAvailSpace() {
+        return availSpace_;
+      }
+      /**
+       * <code>int32 avail_space = 7;</code>
+       */
+      public Builder setAvailSpace(int value) {
+        
+        availSpace_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>int32 avail_space = 7;</code>
+       */
+      public Builder clearAvailSpace() {
+        
+        availSpace_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private int totRequest_ ;
+      /**
+       * <code>int32 tot_request = 8;</code>
+       */
+      public int getTotRequest() {
+        return totRequest_;
+      }
+      /**
+       * <code>int32 tot_request = 8;</code>
+       */
+      public Builder setTotRequest(int value) {
+        
+        totRequest_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>int32 tot_request = 8;</code>
+       */
+      public Builder clearTotRequest() {
+        
+        totRequest_ = 0;
         onChanged();
         return this;
       }
@@ -8672,16 +8078,6 @@ public final class Clientproto {
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_SNReceive_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_SNSend_descriptor;
-  private static final 
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_SNSend_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_FileData_descriptor;
-  private static final 
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_FileData_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_CordReceive_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
@@ -8697,10 +8093,10 @@ public final class Clientproto {
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_ClientReceiveData_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_coordinatorMessage_descriptor;
+    internal_static_FileData_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_coordinatorMessage_fieldAccessorTable;
+      internal_static_FileData_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_NodeInfo_descriptor;
   private static final 
@@ -8720,41 +8116,39 @@ public final class Clientproto {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\021clientproto.proto\"\354\001\n\tSNReceive\022\033\n\010fil" +
+      "\n\021clientproto.proto\"\246\002\n\tSNReceive\022\033\n\010fil" +
       "eData\030\001 \001(\0132\t.FileData\022#\n\004type\030\002 \001(\0162\025.S" +
       "NReceive.packetType\022\021\n\tfileExist\030\003 \001(\010\022\025" +
       "\n\rsendBroadCast\030\004 \001(\010\022\022\n\nnode_files\030\005 \003(" +
-      "\t\022\017\n\007success\030\006 \001(\010\"N\n\npacketType\022\t\n\005STOR" +
-      "E\020\000\022\014\n\010RETRIEVE\020\001\022\n\n\006SYSTEM\020\002\022\r\n\tBROADCA" +
-      "ST\020\003\022\014\n\010PIPELINE\020\004\"\216\001\n\006SNSend\022\033\n\010fileDat" +
-      "a\030\001 \001(\0132\t.FileData\022 \n\004type\030\002 \001(\0162\022.SNSen" +
-      "d.packetType\022\022\n\nnode_files\030\003 \003(\t\"1\n\npack" +
-      "etType\022\t\n\005STORE\020\000\022\014\n\010RETRIEVE\020\001\022\n\n\006SYSTE" +
-      "M\020\002\"d\n\010FileData\022\014\n\004data\030\001 \001(\014\022\020\n\010chunk_n" +
-      "o\030\002 \001(\005\022\022\n\nnum_chunks\030\003 \001(\005\022\020\n\010filename\030" +
-      "\004 \001(\t\022\022\n\nreplicaNum\030\005 \001(\005\"\253\001\n\013CordReceiv" +
-      "e\022\023\n\013avail_space\030\001 \001(\005\022\023\n\013req_handled\030\002 " +
-      "\001(\005\022%\n\004type\030\003 \001(\0162\027.CordReceive.packetTy" +
-      "pe\022\n\n\002ip\030\004 \001(\t\022\014\n\004port\030\005 \001(\005\"1\n\npacketTy" +
-      "pe\022\010\n\004JOIN\020\000\022\n\n\006SYSTEM\020\001\022\r\n\tHEARTBEAT\020\002\"" +
-      "\373\001\n\014CordResponse\022\020\n\010can_join\030\001 \001(\010\022\023\n\013st" +
-      "art_range\030\002 \001(\005\022\021\n\tend_range\030\003 \001(\005\022\023\n\013av" +
-      "ail_space\030\004 \001(\005\022\023\n\013req_handled\030\005 \001(\005\022\034\n\t" +
-      "all_nodes\030\006 \003(\0132\t.NodeInfo\022\016\n\006nodeId\030\007 \001" +
-      "(\005\022&\n\004type\030\010 \001(\0162\030.CordResponse.packetTy" +
-      "pe\"1\n\npacketType\022\010\n\004JOIN\020\000\022\n\n\006SYSTEM\020\001\022\r" +
-      "\n\tHEARTBEAT\020\002\"\344\001\n\021ClientReceiveData\022\033\n\010f" +
-      "ileData\030\001 \001(\0132\t.FileData\022\014\n\004port\030\002 \001(\005\022\n" +
-      "\n\002ip\030\003 \001(\t\022\034\n\tnode_info\030\004 \003(\0132\t.NodeInfo" +
-      "\022\023\n\013avail_space\030\005 \001(\005\022\022\n\nnode_files\030\006 \003(" +
-      "\t\022+\n\004type\030\007 \001(\0162\035.ClientReceiveData.pack" +
-      "etType\"$\n\npacketType\022\010\n\004DATA\020\000\022\014\n\010REDIRE" +
-      "CT\020\001\"B\n\022coordinatorMessage\",\n\npacketType" +
-      "\022\013\n\007NEWNODE\020\000\022\021\n\rCLIENTREQUEST\020\001\"_\n\010Node" +
+      "\t\022\035\n\nchunk_list\030\006 \003(\0132\t.FileData\022\017\n\007succ" +
+      "ess\030\007 \001(\010\"i\n\npacketType\022\t\n\005STORE\020\000\022\014\n\010RE" +
+      "TRIEVE\020\001\022\n\n\006SYSTEM\020\002\022\r\n\tBROADCAST\020\003\022\014\n\010P" +
+      "IPELINE\020\004\022\014\n\010CHECKSUM\020\005\022\013\n\007RECOVER\020\006\"\253\001\n" +
+      "\013CordReceive\022\023\n\013avail_space\030\001 \001(\005\022\023\n\013req" +
+      "_handled\030\002 \001(\005\022%\n\004type\030\003 \001(\0162\027.CordRecei" +
+      "ve.packetType\022\n\n\002ip\030\004 \001(\t\022\014\n\004port\030\005 \001(\005\"" +
+      "1\n\npacketType\022\010\n\004JOIN\020\000\022\n\n\006SYSTEM\020\001\022\r\n\tH" +
+      "EARTBEAT\020\002\"\235\002\n\014CordResponse\022\020\n\010can_join\030" +
+      "\001 \001(\010\022\023\n\013start_range\030\002 \001(\005\022\021\n\tend_range\030" +
+      "\003 \001(\005\022\023\n\013avail_space\030\004 \001(\005\022\023\n\013req_handle" +
+      "d\030\005 \001(\005\022\034\n\tnew_nodes\030\006 \003(\0132\t.NodeInfo\022 \n" +
+      "\rremoved_nodes\030\007 \003(\0132\t.NodeInfo\022\016\n\006nodeI" +
+      "d\030\010 \001(\005\022&\n\004type\030\t \001(\0162\030.CordResponse.pac" +
+      "ketType\"1\n\npacketType\022\010\n\004JOIN\020\000\022\n\n\006SYSTE" +
+      "M\020\001\022\r\n\tHEARTBEAT\020\002\"\344\001\n\021ClientReceiveData" +
+      "\022\033\n\010fileData\030\001 \001(\0132\t.FileData\022\014\n\004port\030\002 " +
+      "\001(\005\022\n\n\002ip\030\003 \001(\t\022\034\n\tnode_info\030\004 \003(\0132\t.Nod" +
+      "eInfo\022\023\n\013avail_space\030\005 \001(\005\022\022\n\nnode_files" +
+      "\030\006 \003(\t\022+\n\004type\030\007 \001(\0162\035.ClientReceiveData" +
+      ".packetType\"$\n\npacketType\022\010\n\004DATA\020\000\022\014\n\010R" +
+      "EDIRECT\020\001\"d\n\010FileData\022\014\n\004data\030\001 \001(\014\022\020\n\010c" +
+      "hunk_no\030\002 \001(\005\022\022\n\nnum_chunks\030\003 \001(\005\022\020\n\010fil" +
+      "ename\030\004 \001(\t\022\022\n\nreplicaNum\030\005 \001(\005\"\211\001\n\010Node" +
       "Info\022\n\n\002id\030\001 \001(\005\022\n\n\002ip\030\003 \001(\t\022\014\n\004port\030\004 \001" +
       "(\005\022\033\n\010position\030\005 \001(\0132\t.BInteger\022\020\n\010neigh" +
-      "bor\030\006 \001(\005\"\034\n\010BInteger\022\020\n\010position\030\001 \001(\014b" +
-      "\006proto3"
+      "bor\030\006 \001(\005\022\023\n\013avail_space\030\007 \001(\005\022\023\n\013tot_re" +
+      "quest\030\010 \001(\005\"\034\n\010BInteger\022\020\n\010position\030\001 \001(" +
+      "\014b\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -8773,51 +8167,39 @@ public final class Clientproto {
     internal_static_SNReceive_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_SNReceive_descriptor,
-        new java.lang.String[] { "FileData", "Type", "FileExist", "SendBroadCast", "NodeFiles", "Success", });
-    internal_static_SNSend_descriptor =
-      getDescriptor().getMessageTypes().get(1);
-    internal_static_SNSend_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_SNSend_descriptor,
-        new java.lang.String[] { "FileData", "Type", "NodeFiles", });
-    internal_static_FileData_descriptor =
-      getDescriptor().getMessageTypes().get(2);
-    internal_static_FileData_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_FileData_descriptor,
-        new java.lang.String[] { "Data", "ChunkNo", "NumChunks", "Filename", "ReplicaNum", });
+        new java.lang.String[] { "FileData", "Type", "FileExist", "SendBroadCast", "NodeFiles", "ChunkList", "Success", });
     internal_static_CordReceive_descriptor =
-      getDescriptor().getMessageTypes().get(3);
+      getDescriptor().getMessageTypes().get(1);
     internal_static_CordReceive_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_CordReceive_descriptor,
         new java.lang.String[] { "AvailSpace", "ReqHandled", "Type", "Ip", "Port", });
     internal_static_CordResponse_descriptor =
-      getDescriptor().getMessageTypes().get(4);
+      getDescriptor().getMessageTypes().get(2);
     internal_static_CordResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_CordResponse_descriptor,
-        new java.lang.String[] { "CanJoin", "StartRange", "EndRange", "AvailSpace", "ReqHandled", "AllNodes", "NodeId", "Type", });
+        new java.lang.String[] { "CanJoin", "StartRange", "EndRange", "AvailSpace", "ReqHandled", "NewNodes", "RemovedNodes", "NodeId", "Type", });
     internal_static_ClientReceiveData_descriptor =
-      getDescriptor().getMessageTypes().get(5);
+      getDescriptor().getMessageTypes().get(3);
     internal_static_ClientReceiveData_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ClientReceiveData_descriptor,
         new java.lang.String[] { "FileData", "Port", "Ip", "NodeInfo", "AvailSpace", "NodeFiles", "Type", });
-    internal_static_coordinatorMessage_descriptor =
-      getDescriptor().getMessageTypes().get(6);
-    internal_static_coordinatorMessage_fieldAccessorTable = new
+    internal_static_FileData_descriptor =
+      getDescriptor().getMessageTypes().get(4);
+    internal_static_FileData_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_coordinatorMessage_descriptor,
-        new java.lang.String[] { });
+        internal_static_FileData_descriptor,
+        new java.lang.String[] { "Data", "ChunkNo", "NumChunks", "Filename", "ReplicaNum", });
     internal_static_NodeInfo_descriptor =
-      getDescriptor().getMessageTypes().get(7);
+      getDescriptor().getMessageTypes().get(5);
     internal_static_NodeInfo_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_NodeInfo_descriptor,
-        new java.lang.String[] { "Id", "Ip", "Port", "Position", "Neighbor", });
+        new java.lang.String[] { "Id", "Ip", "Port", "Position", "Neighbor", "AvailSpace", "TotRequest", });
     internal_static_BInteger_descriptor =
-      getDescriptor().getMessageTypes().get(8);
+      getDescriptor().getMessageTypes().get(6);
     internal_static_BInteger_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_BInteger_descriptor,

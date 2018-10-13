@@ -11,6 +11,8 @@ public class StorageNode {
     private String ip;
     private int port;
     private int nodeId;
+    private int availableSpace;
+    private int requestHandled;
     private ArrayList<HashRingEntry> newEntries;
     private ArrayList<HashRingEntry> removedNodes;
 
@@ -22,6 +24,8 @@ public class StorageNode {
         heartbeatThread.start();
         this.newEntries = new ArrayList<>();
         this.removedNodes = new ArrayList<>();
+        this.availableSpace = 0;
+        this.requestHandled = 0;
     }
 
     public void addRemovedRingEntry(HashRingEntry entry){
@@ -51,8 +55,6 @@ public class StorageNode {
         return true;
     }
 
-
-
     public ArrayList<HashRingEntry> getNewEntries() {
         return newEntries;
     }
@@ -74,5 +76,21 @@ public class StorageNode {
 
     public int getNodeId() {
         return nodeId;
+    }
+
+    public void setAvailableSpace(int availableSpace) {
+        this.availableSpace = availableSpace;
+    }
+
+    public void setRequestHandled(int requestHandled) {
+        this.requestHandled = requestHandled;
+    }
+
+    public int getAvailableSpace() {
+        return availableSpace;
+    }
+
+    public int getRequestHandled() {
+        return requestHandled;
     }
 }

@@ -11,33 +11,34 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class OldNeighborRehashThread extends Thread{
-    private static HashMap<String, Clientproto.SNReceive> dataStore;
+    private SystemDataStore systemDataStore;
     private BalancedHashRing balancedHashRing;
     private BigInteger position;
 
 
-    public OldNeighborRehashThread(HashMap<String, Clientproto.SNReceive> dataStore, BalancedHashRing balancedHashRing, BigInteger position){
+    public OldNeighborRehashThread(SystemDataStore systemDataStore, BalancedHashRing balancedHashRing, BigInteger position){
     this.balancedHashRing = balancedHashRing;
-    this.dataStore = dataStore;
+    this.systemDataStore = systemDataStore;
     this.position = position;
     }
 
     public void run() {
         System.out.println("Start rehashing as the old neighbor..");
-        HashMap<String, Clientproto.SNReceive> dataStoreCopy = new HashMap<>(dataStore);
+        HashMap<String, Clientproto.SNReceive> dataStoreCopy = systemDataStore.getDataStoreCopy();
         for(Clientproto.SNReceive data : dataStoreCopy.values()){
             if(data.getFileData().getReplicaNum() == 2){
                 String hashString = data.getFileData().getFilename() + data.getFileData().getChunkNo();
 
                 try {
                     BigInteger node =  balancedHashRing.locate(hashString.getBytes());
+                    System.out.println("First chunk should be stored at: " + balancedHashRing.getEntry(node).getNodeId());
                     //If i should store first chunk now
                     if(node.compareTo(position) == 0){
 
                         if(replicateChunk(data)){
                             Clientproto.SNReceive firstReplica = rebuildReplica(data,1);
                             String key = firstReplica.getFileData().getFilename() + firstReplica.getFileData().getChunkNo() + firstReplica.getFileData().getReplicaNum();
-                            dataStore.put(key, firstReplica);
+                            systemDataStore.addDataStore(key, firstReplica);
                         }else{
                             System.out.println("Unable to rehash chunk: " + data.getFileData().getChunkNo() + " successfully");
                         }

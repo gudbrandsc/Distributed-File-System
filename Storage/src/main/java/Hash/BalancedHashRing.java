@@ -81,7 +81,10 @@ public class BalancedHashRing<T> implements HashRing<T> {
      */
     private void addRingEntry(BigInteger position, HashRingEntry predecessor, int nodeId, String ip, int port)
             throws HashTopologyException {
+        System.out.println("Im in here");
         if (entryMap.get(position) != null) {
+            System.out.println("node that is here: " + entryMap.get(position).getNodeId());
+
             /* Something is already here! */
             System.out.println(position);
             throw new HashTopologyException("Hash space exhausted!");
@@ -165,13 +168,17 @@ public class BalancedHashRing<T> implements HashRing<T> {
         for (HashRingEntry entry : entryMapCopy.values()) {
 
             if (entry.position.compareTo(position) > 0) {
-                foundLargest = true;
-                addRingEntry(position, predecessor, nodeId, ip, port);
+                if(!foundLargest) {
+                    System.out.println("Found largest");
+                    foundLargest = true;
+                    addRingEntry(position, predecessor, nodeId, ip, port);
+                }
             }
             predecessor = entry;
         }
 
         if(!foundLargest){
+            System.out.println("Did not find larges");
             HashRingEntry lastEntry = entryMapCopy.lastEntry().getValue();
             addRingEntry(position, lastEntry, nodeId, ip, port);
 
@@ -193,6 +200,7 @@ public class BalancedHashRing<T> implements HashRing<T> {
     public BigInteger addNode(int nodeId, String ip, int port)
     throws HashTopologyException, HashException {
         /* Edge case: when there are no entries in the hash ring yet. */
+        System.out.println("inside of the addnode simple method");
         if (entryMap.values().size() == 0) {
             BigInteger pos;
 

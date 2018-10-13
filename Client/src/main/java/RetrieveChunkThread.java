@@ -36,7 +36,6 @@ public class RetrieveChunkThread extends Thread{
     public void run() {
         int tryCount = 1;
 
-
         Clientproto.SNReceive reply = null;
         boolean success = false;
         while(!success && tryCount < 4){
@@ -70,9 +69,11 @@ public class RetrieveChunkThread extends Thread{
 
             Clientproto.SNReceive reply = Clientproto.SNReceive.parseDelimitedFrom(instream);
             socket.close();
-            System.out.println("Got chunk " + chunkNumber +" replica num: " + replicaNum + " from node: " +storageNode.getId());
-
-            return reply;
+           // System.out.println("Got chunk " + chunkNumber +" replica num: " + replicaNum + " from node: " +storageNode.getId());
+            if(reply.getSuccess()) {
+                return reply;
+            }
+            return null;
 
         } catch (IOException e) {
             System.out.println("Unable to get chunk: " + chunkNumber + " From node: " +storageNode.getId());

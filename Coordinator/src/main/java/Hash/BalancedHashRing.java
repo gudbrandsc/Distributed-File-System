@@ -71,7 +71,9 @@ public class BalancedHashRing<T> implements HashRing<T> {
      */
     private void addRingEntry(BigInteger position, HashRingEntry predecessor, int nodeId, String ip, int port)
     throws HashTopologyException {
+        System.out.println("Im in the add ring entry method");
         if (entryMap.get(position) != null) {
+            System.out.println("node that is here: " + entryMap.get(position).getNodeId());
             /* Something is already here! */
             System.out.println(position);
             throw new HashTopologyException("Hash space exhausted!");
@@ -102,6 +104,67 @@ public class BalancedHashRing<T> implements HashRing<T> {
         entryMap.remove(position);
         System.out.println("Removed node with id: " + entry.getNodeId());
         return true;
+    }
+
+    /**
+     * Add a node to the overlay network topology.
+     *
+     * unused for this hash ring; nodes are placed evenly based on
+     * current topology characteristics.  You may safely pass 'null' to this
+     * method.
+     *
+     * @return the location of the new node in the hash space.
+     */
+    public synchronized BigInteger addNodeWithPosition(BigInteger position, int nodeId, String ip, int port)
+            throws HashTopologyException, HashException {
+        /* Edge case: when there are no entries in the hash ring yet. */
+        if (entryMap.values().size() == 0) {
+
+            HashRingEntry firstEntry = new HashRingEntry(position, nodeId, ip, port);
+            entryMap.put(position, firstEntry);
+            return position;
+        }
+
+        /* Edge case: only one entry in the hash ring */
+        if (entryMap.values().size() == 1) {
+            HashRingEntry firstEntry = entryMap.values().iterator().next();
+
+            HashRingEntry secondEntry = new HashRingEntry(position, firstEntry, nodeId, ip, port);
+            firstEntry.neighbor = secondEntry;
+            entryMap.put(position, secondEntry);
+
+            return position;
+        }
+
+        /* Find the largest empty span of hash space */
+        HashRingEntry largestEntry = null;
+        boolean foundLargest = false;
+
+
+        TreeMap<BigInteger, HashRingEntry> entryMapCopy = new TreeMap<>(entryMap);
+
+        HashRingEntry predecessor = null;
+        for (HashRingEntry entry : entryMapCopy.values()) {
+
+            if (entry.position.compareTo(position) > 0) {
+                if(!foundLargest) {
+                    System.out.println("Found largest");
+                    foundLargest = true;
+                    addRingEntry(position, predecessor, nodeId, ip, port);
+                }
+            }
+            predecessor = entry;
+        }
+
+        if(!foundLargest){
+            System.out.println("Did not find larges");
+            HashRingEntry lastEntry = entryMapCopy.lastEntry().getValue();
+            addRingEntry(position, lastEntry, nodeId, ip, port);
+
+        }
+
+        return position;
+
     }
 
     /**

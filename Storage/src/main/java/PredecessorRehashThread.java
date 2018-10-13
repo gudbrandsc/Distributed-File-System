@@ -11,20 +11,20 @@ import java.net.Socket;
 import java.util.HashMap;
 
 public class PredecessorRehashThread extends Thread{
-    private static HashMap<String, Clientproto.SNReceive> dataStore;
+    private SystemDataStore systemDataStore;
     private BalancedHashRing balancedHashRing;
     private BigInteger position;
 
 
-    public PredecessorRehashThread(HashMap<String, Clientproto.SNReceive> dataStore, BalancedHashRing balancedHashRing, BigInteger position){
+    public PredecessorRehashThread(SystemDataStore systemDataStore, BalancedHashRing balancedHashRing, BigInteger position){
         this.balancedHashRing = balancedHashRing;
-        this.dataStore = dataStore;
+        this.systemDataStore = systemDataStore;
         this.position = position;
     }
 
     public void run() {
         System.out.println("Start rehashing as the old predecessor..");
-        for(Clientproto.SNReceive data : dataStore.values()) {
+        for(Clientproto.SNReceive data : systemDataStore.getDataStoreCopy().values()) {
             if (data.getFileData().getReplicaNum() < 3) {
                 int replicaNumber = data.getFileData().getReplicaNum() + 1;
                 Clientproto.SNReceive piplineData = rebuildReplica(data, replicaNumber);

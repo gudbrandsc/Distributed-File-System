@@ -44,6 +44,7 @@ public class HeartbeatThread extends Thread{
         for(StorageNode node : storageNodeMap.values()){
             node.addRemovedRingEntry(balancedHashRing.getEntryAtPos(position));
         }
+
         balancedHashRing.removeRingEntry(position);
 
 

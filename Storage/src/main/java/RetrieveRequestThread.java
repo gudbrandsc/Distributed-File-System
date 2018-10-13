@@ -1,14 +1,13 @@
-import Hash.BalancedHashRing;
-import Hash.HashException;
-import Hash.HashRingEntry;
-import Hash.SHA1;
+import Hash.*;
+import com.google.protobuf.ByteString;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.math.BigInteger;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -18,18 +17,15 @@ public class RetrieveRequestThread extends Thread {
     private Clientproto.SNReceive chunk;
     private BalancedHashRing balancedHashRing;
     private int nodeId;
-    private HashMap<String, Clientproto.SNReceive> dataStorage;
-    private ArrayList<String> filesInSystem;
+    private SystemDataStore systemDataStore;
 
     /** Constructor */
-    public RetrieveRequestThread(Socket socket, Clientproto.SNReceive chunk, BalancedHashRing balancedHashRing, int nodeId,HashMap<String, Clientproto.SNReceive> dataStorage, ArrayList<String> filesInSystem
-    ) {
+    public RetrieveRequestThread(Socket socket, Clientproto.SNReceive chunk, BalancedHashRing balancedHashRing, int nodeId,SystemDataStore systemDataStore) {
         this.socket = socket;
         this.chunk = chunk;
         this.balancedHashRing = balancedHashRing;
         this.nodeId = nodeId;
-        this.dataStorage = dataStorage;
-        this.filesInSystem = filesInSystem;
+        this.systemDataStore = systemDataStore;
 
     }
 
@@ -41,8 +37,10 @@ public class RetrieveRequestThread extends Thread {
      */
     public void run() {
         String hashString = chunk.getFileData().getFilename() + chunk.getFileData().getChunkNo();
-        if(filesInSystem.contains(chunk.getFileData().getFilename())){
+        String filename = chunk.getFileData().getFilename() + "-" + chunk.getFileData().getChunkNo()+ "-" + chunk.getFileData().getReplicaNum();
+        File file = new File("./DataStorage" + nodeId + "/" + filename);
 
+        if(systemDataStore.filesExist(chunk.getFileData().getFilename())){
             try {
                 BigInteger node = balancedHashRing.locate(hashString.getBytes());
                 HashRingEntry entry = balancedHashRing.getEntry(node);
@@ -51,25 +49,23 @@ public class RetrieveRequestThread extends Thread {
                     entry = entry.neighbor;
                 }
 
-
                 if(entry.getNodeId() == nodeId){
-                    System.out.println("I have chunk: " + chunk.getFileData().getChunkNo());
-                    //Store it
                     String key = chunk.getFileData().getFilename() + chunk.getFileData().getChunkNo()+chunk.getFileData().getReplicaNum();
-                    System.out.println("The key is "  + key);
-                    System.out.println("map size: " + dataStorage.size());
                     OutputStream outstream = socket.getOutputStream();
                     Clientproto.SNReceive reply = null;
-
-
-                    if(dataStorage.containsKey(key)){
-                        reply = dataStorage.get(key);
-                        System.out.println("reply object: " + reply.getFileData().getChunkNo());
-                        reply.writeDelimitedTo(outstream);
-                        socket.close();
-                    }else{
-                        System.out.println("For some reason i dont have the file after all");
+                    if(file.exists()){
+                        if(validateWithChecksum(chunk)) {
+                            String fileToRead = chunk.getFileData().getFilename() + "-" + chunk.getFileData().getChunkNo() + "-" + chunk.getFileData().getReplicaNum();
+                            byte[] chunkData = getChunkData(fileToRead);
+                            reply = buildResponse(systemDataStore.getChunkData(key), chunkData);
+                            reply.writeDelimitedTo(outstream);
+                        }
+                    } else{
+                        Clientproto.SNReceive resp = Clientproto.SNReceive.newBuilder().setSuccess(false).build();
+                        resp.writeDelimitedTo(outstream);
+                        System.out.println("For some reason i don't have the file after all");
                     }
+                    socket.close();
 
                 }else{
                     //TODO if unable to open socket then return snsend with success = false;
@@ -80,8 +76,6 @@ public class RetrieveRequestThread extends Thread {
                     chunk.writeDelimitedTo(outstream);
                     Clientproto.SNReceive reply = Clientproto.SNReceive.parseDelimitedFrom(instream);
                     nodeSocket.close();
-
-
 
                     outstream = socket.getOutputStream();
                     reply.writeDelimitedTo(outstream);
@@ -104,8 +98,99 @@ public class RetrieveRequestThread extends Thread {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+    }
 
+    private boolean validateWithChecksum(Clientproto.SNReceive data){
+        System.out.println("Validating with checksum");
+        SHA1 sha1 = new SHA1();
+        BigInteger value1 = null;
+        BigInteger value2 = null;
+        String filename = data.getFileData().getFilename() + "-" + data.getFileData().getChunkNo() + "-" + data.getFileData().getReplicaNum();
+        Path fileLocation = Paths.get("./DataStorage" + nodeId + "/" + filename);
+        Path checksumFileLocation = Paths.get("./DataStorage" + nodeId + "/" + filename + "-checksum");
+
+        try {
+            byte[] originalFile = Files.readAllBytes(fileLocation);
+            byte[] checksumFile = Files.readAllBytes(checksumFileLocation);
+            value1 = sha1.hash(originalFile);
+            value2 = sha1.hash(checksumFile);
+        } catch (HashException | IOException e) {
+            e.printStackTrace();
         }
 
+        if(value1.compareTo(value2) == 0){
+            return true;
+        } else {
+            System.out.println("Checksum failed.");
+            fixFileCorruption(data);
+            return true;
+        }
+
+    }
+
+    private Clientproto.SNReceive buildResponse(Clientproto.SNReceive chunk, byte[] data ){
+        Clientproto.FileData fileData = chunk.getFileData();
+        Clientproto.FileData newFileData = Clientproto.FileData.newBuilder().setData(ByteString.copyFrom(data)).setChunkNo(fileData.getChunkNo())
+                .setNumChunks(fileData.getNumChunks()).setFilename(fileData.getFilename()).setReplicaNum(chunk.getFileData().getReplicaNum()).build();
+
+        return Clientproto.SNReceive.newBuilder().setFileData(newFileData).setType(Clientproto.SNReceive.packetType.PIPELINE).setFileExist(true).setSuccess(true).build();
+    }
+
+    private byte[] getChunkData(String key){
+
+        Path fileLocation = Paths.get("./DataStorage" + nodeId + "/" + key);
+
+        try {
+            return Files.readAllBytes(fileLocation);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private void fixFileCorruption(Clientproto.SNReceive data){
+        System.out.println("Fixing file corruption...");
+        HashRingEntry neighbor = balancedHashRing.getEntryById(nodeId).neighbor;
+        Socket socket = null;
+        int replicaNumber = data.getFileData().getReplicaNum() + 1;
+        Clientproto.SNReceive reply = null;
+        Clientproto.FileData fileData = Clientproto.FileData.newBuilder().setFilename(data.getFileData().getFilename()).setChunkNo(data.getFileData().getChunkNo()).setReplicaNum(replicaNumber).build();
+        Clientproto.SNReceive message = Clientproto.SNReceive.newBuilder().setType(Clientproto.SNReceive.packetType.CHECKSUM).setFileData(fileData).build();
+
+        try {
+            socket = new Socket(neighbor.getIp(), neighbor.getPort());
+            OutputStream outstream = socket.getOutputStream();
+            InputStream instream = socket.getInputStream();
+            message.writeDelimitedTo(outstream);
+            reply = Clientproto.SNReceive.parseDelimitedFrom(instream);
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        writeDataToFile(reply);
+        validateWithChecksum(reply);
+    }
+
+    private void writeDataToFile(Clientproto.SNReceive data){
+        System.out.println("Writing fixed data to file...");
+        try {
+            String filename = data.getFileData().getFilename() + "-" + data.getFileData().getChunkNo() + "-" + data.getFileData().getReplicaNum();
+            File dataFile = new File("./DataStorage" + nodeId + "/" + filename);
+            byte[] dataToStore = data.getFileData().getData().toByteArray();
+
+            if (dataFile.exists()) {
+                dataFile.delete();
+            }
+
+            dataFile.createNewFile();
+            FileOutputStream oi = new FileOutputStream(dataFile);
+            oi.write(dataToStore);
+
+        } catch (IOException e) {
+            System.out.println("Unable to build file..");
+            e.printStackTrace();
+        }
     }
 }

@@ -16,12 +16,15 @@ import java.util.Map;
 public class SystemReportResponder extends Thread{
     private Socket socket;
     private BalancedHashRing balancedHashRing;
+    private HashMap<String, StorageNode> storageNodeMap;
+
 
 
     /**Constructor*/
-    SystemReportResponder(Socket socket, BalancedHashRing balancedHashRing) {
+    SystemReportResponder(Socket socket, BalancedHashRing balancedHashRing, HashMap<String, StorageNode> storageNodeMap) {
         this.socket = socket;
         this.balancedHashRing = balancedHashRing;
+        this.storageNodeMap = storageNodeMap;
     }
 
     /**
@@ -32,11 +35,11 @@ public class SystemReportResponder extends Thread{
         ArrayList<Clientproto.NodeInfo> nodeInfos = new ArrayList<Clientproto.NodeInfo>();
 
         ArrayList<HashRingEntry> hashRingEntries = new ArrayList<>(balancedHashRing.getEntryMap().values());
+
         for(HashRingEntry entry : hashRingEntries){
-            Clientproto.BInteger.Builder builder = Clientproto.BInteger.newBuilder();
-            ByteString bytes = ByteString.copyFrom(entry.getPosition().toByteArray());
-            builder.setPosition(bytes);
-            nodeInfos.add(Clientproto.NodeInfo.newBuilder().setPosition(builder.build()).setIp(entry.getIp()).setPort(entry.getPort()).setId(entry.getNodeId()).setNeighbor(entry.getNeighbor().getNodeId()).build());
+            StorageNode node = storageNodeMap.get(entry.getIp() + entry.getPort());
+            System.out.println("Adding node with available space: " + node.getAvailableSpace() + " and id " + node.getNodeId());
+            nodeInfos.add(Clientproto.NodeInfo.newBuilder().setIp(entry.getIp()).setPort(entry.getPort()).setId(entry.getNodeId()).setAvailSpace(node.getAvailableSpace()).setTotRequest(node.getRequestHandled()).build());
 
         }
 

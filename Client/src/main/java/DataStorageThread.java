@@ -14,8 +14,7 @@ import java.util.concurrent.CountDownLatch;
 public class DataStorageThread extends Thread{
     private StorageNodeInfo storageNode;
     private Clientproto.SNReceive chunk;
-    private CountDownLatch latch;
-    private HashMap<Integer,Boolean> successMap;
+    private static CountDownLatch latch;
 
 
     //TODO Have list of storage nodes her and add random. If timeout then send to an other.
@@ -39,12 +38,16 @@ public class DataStorageThread extends Thread{
             OutputStream outstream = socket.getOutputStream();
             chunk.writeDelimitedTo(outstream);
             reply = Clientproto.SNReceive.parseDelimitedFrom(instream);
-            if(!reply.getSuccess()){
+            if(reply == null){
+                System.out.println("Failed to store chunk: " + chunk.getFileData().getChunkNo());
+
+            } else if(!reply.getSuccess() ){
                 System.out.println("Failed to store chunk: " + chunk.getFileData().getChunkNo());
             }
             //TODO if failed to pipeline inform client
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("lol");
+           // e.printStackTrace();
         }
         latch.countDown();
     }

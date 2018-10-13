@@ -10,7 +10,8 @@ message SNReceive {
     bool fileExist = 3;
     bool sendBroadCast = 4;
     repeated string node_files = 5;
-    bool success = 6;
+    repeated FileData chunk_list = 6;
+    bool success = 7;
 
     enum packetType {
         STORE = 0;
@@ -18,30 +19,12 @@ message SNReceive {
         SYSTEM = 2;
         BROADCAST = 3;
         PIPELINE = 4;
+        CHECKSUM = 5;
+        RECOVER = 6;
     }
 }
 
 
-// Message type the storage node reply with
-message SNSend {
-    FileData fileData = 1;
-    packetType type = 2;
-    repeated string node_files = 3;
-
-    enum packetType {
-        STORE = 0;
-        RETRIEVE = 1;
-        SYSTEM = 2;
-    }
-}
-
-message FileData {
-    bytes data = 1;
-    int32 chunk_no = 2;
-    int32 num_chunks = 3;
-    string filename = 4;
-    int32 replicaNum = 5;
-}
 
 message CordReceive {
     int32 avail_space = 1;
@@ -63,9 +46,10 @@ message CordResponse {
     int32 end_range = 3;
     int32 avail_space = 4;
     int32 req_handled = 5;
-    repeated NodeInfo all_nodes = 6;
-    int32 nodeId = 7;
-    packetType type = 8;
+    repeated NodeInfo new_nodes = 6;
+    repeated NodeInfo removed_nodes = 7;
+    int32 nodeId = 8;
+    packetType type = 9;
 
 
     enum packetType {
@@ -74,20 +58,6 @@ message CordResponse {
         HEARTBEAT = 2;
     }
 }
-
-
-
-// Message sent to cordinator from client to get system info.
-
-// Reply from codinator to client.
-
-// Reply from coordinator to storage node.
-
-// Reply from coordinator to new storage node.
-
-//
-
-
 
 
 
@@ -107,13 +77,14 @@ message ClientReceiveData {
     }
 }
 
-message coordinatorMessage {
-    //Add data for the storage node to do something with the ring
-    enum packetType {
-        NEWNODE = 0;
-        CLIENTREQUEST = 1;
-    }
+message FileData {
+    bytes data = 1;
+    int32 chunk_no = 2;
+    int32 num_chunks = 3;
+    string filename = 4;
+    int32 replicaNum = 5;
 }
+
 
 message NodeInfo{
     int32 id = 1;
@@ -121,6 +92,9 @@ message NodeInfo{
     int32 port = 4;
     BInteger position = 5;
     int32 neighbor = 6;
+    int32 avail_space = 7;
+    int32 tot_request = 8;
+
 
 }
 

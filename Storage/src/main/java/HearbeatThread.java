@@ -11,6 +11,7 @@ import java.math.BigInteger;
 import java.net.Socket;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class HearbeatThread extends Thread {
     private String coordIp;
@@ -21,13 +22,10 @@ public class HearbeatThread extends Thread {
     private static HashMap<String, StorageNodeInfo> storageNodes;
     private volatile boolean alive;
     private static BalancedHashRing balancedHashRing;
-    private static HashMap<String, Clientproto.SNReceive> dataStore;
-    private static ArrayList<String> filesInSystem;
-
+    private SystemDataStore systemDataStore;
 
     /** Constructor */
-    public HearbeatThread(String coordIp, int coordPort, String myIp, int myPort, HashMap<String, StorageNodeInfo> storageNodes, BalancedHashRing balancedHashRing,int nodeid, HashMap<String, Clientproto.SNReceive> dataStore,
-                          ArrayList<String> filesInSystem) {
+    public HearbeatThread(String coordIp, int coordPort, String myIp, int myPort, HashMap<String, StorageNodeInfo> storageNodes, BalancedHashRing balancedHashRing,int nodeid, SystemDataStore systemDataStore) {
         this.coordIp = coordIp;
         this.coordPort = coordPort;
         this.myIp = myIp;
@@ -36,8 +34,9 @@ public class HearbeatThread extends Thread {
         this.alive = true;
         this.balancedHashRing = balancedHashRing;
         this.nodeid = nodeid;
-        this.dataStore = dataStore;
-        this.filesInSystem = filesInSystem;
+        this.systemDataStore = systemDataStore;
+
+
 
     }
 
@@ -55,7 +54,7 @@ public class HearbeatThread extends Thread {
                 socket = new Socket(coordIp, coordPort);
                 InputStream instream = socket.getInputStream();
                 OutputStream outstream = socket.getOutputStream();
-                Clientproto.CordReceive heartBeatMessage = Clientproto.CordReceive.newBuilder().setType(Clientproto.CordReceive.packetType.HEARTBEAT).setIp(myIp).setPort(myPort).build();
+                Clientproto.CordReceive heartBeatMessage = Clientproto.CordReceive.newBuilder().setType(Clientproto.CordReceive.packetType.HEARTBEAT).setIp(myIp).setPort(myPort).setAvailSpace(systemDataStore.getTotAvailableSpace()).setReqHandled(systemDataStore.getTotRequestsHandled().intValue()).build();
                 heartBeatMessage.writeDelimitedTo(outstream);
                 reply = Clientproto.CordResponse.parseDelimitedFrom(instream);
                 if(reply.getNewNodesList().size() != 0){
@@ -73,7 +72,8 @@ public class HearbeatThread extends Thread {
 
 
             } catch (IOException e) {
-                e.printStackTrace();
+                System.out.println("Unable to contact coordinator");
+                //e.printStackTrace();
             }                //TODO check reply
             try {
                 TimeUnit.SECONDS.sleep(3);
@@ -83,7 +83,7 @@ public class HearbeatThread extends Thread {
         }
     }
 
-    private static void removeAllNodes(Clientproto.CordResponse reply){
+    private void removeAllNodes(Clientproto.CordResponse reply){
         ArrayList<Clientproto.NodeInfo> removeNodeList = new ArrayList<>(reply.getRemovedNodesList());
         for (Clientproto.NodeInfo node : removeNodeList){
             ByteString bytes = node.getPosition().getPosition();
@@ -91,12 +91,12 @@ public class HearbeatThread extends Thread {
             HashRingEntry entry = balancedHashRing.getEntry(position);
 
             if(entry.neighbor.getNodeId() == nodeid){
-                OldNeighborRehashThread oldNeighborRehashThread = new OldNeighborRehashThread(dataStore, balancedHashRing, balancedHashRing.getEntryById(nodeid).position);
+                OldNeighborRehashThread oldNeighborRehashThread = new OldNeighborRehashThread(systemDataStore, balancedHashRing, balancedHashRing.getEntryById(nodeid).position);
                 balancedHashRing.removeRingEntry(position);
                 oldNeighborRehashThread.start();
 
             }else if(balancedHashRing.getEntryById(nodeid).neighbor == entry){
-                PredecessorRehashThread predecessorRehashThread = new PredecessorRehashThread(dataStore,balancedHashRing,balancedHashRing.getEntryById(nodeid).position);
+                PredecessorRehashThread predecessorRehashThread = new PredecessorRehashThread(systemDataStore,balancedHashRing,balancedHashRing.getEntryById(nodeid).position);
                 balancedHashRing.removeRingEntry(position);
                 predecessorRehashThread.start();
             }else{
@@ -105,17 +105,17 @@ public class HearbeatThread extends Thread {
         }
     }
 
-    private static void addAllNodes(Clientproto.CordResponse reply) throws HashTopologyException {
-        TreeMap<BigInteger, Clientproto.NodeInfo> funnymap = new TreeMap<>();
+    private void addAllNodes(Clientproto.CordResponse reply) throws HashTopologyException {
+        TreeMap<BigInteger, Clientproto.NodeInfo> tempTree = new TreeMap<>();
         for( Clientproto.NodeInfo node: reply.getNewNodesList()) {
             ByteString bytes = node.getPosition().getPosition();
             BigInteger position = new BigInteger(bytes.toByteArray());
-            funnymap.put(position, node);
+            tempTree.put(position, node);
             StorageNodeInfo storageNode = new StorageNodeInfo(node.getIp(),node.getPort(),0,0,node.getId());
             storageNodes.put(node.getIp()+node.getPort(), storageNode);
         }
 
-        for(Map.Entry<BigInteger,Clientproto.NodeInfo> entry : funnymap.entrySet()) {
+        for(Map.Entry<BigInteger,Clientproto.NodeInfo> entry : tempTree.entrySet()) {
             BigInteger key = entry.getKey();
             Clientproto.NodeInfo value = entry.getValue();
             try {
@@ -123,7 +123,7 @@ public class HearbeatThread extends Thread {
                 balancedHashRing.addNodeWithPosition(key, value.getId(), value.getIp(), value.getPort());
 
                 if(balancedHashRing.getEntryById(value.getId()).neighbor.getNodeId() == nodeid){
-                    NewRingEntryRehasingThread newRingEntryRehasingThread = new NewRingEntryRehasingThread(balancedHashRing.getEntryById(value.getId()),dataStore, balancedHashRing, filesInSystem);
+                    NewRingEntryRehasingThread newRingEntryRehasingThread = new NewRingEntryRehasingThread(balancedHashRing.getEntryById(value.getId()), balancedHashRing, systemDataStore);
                     newRingEntryRehasingThread.start();
                 }
 

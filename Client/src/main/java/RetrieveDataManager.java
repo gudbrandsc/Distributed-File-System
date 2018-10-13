@@ -2,6 +2,9 @@ import com.google.protobuf.ByteString;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,6 +17,8 @@ import java.util.concurrent.CountDownLatch;
  */
 public class RetrieveDataManager extends Thread{
     private String filename;
+    private String writeFilename;
+
     private static ByteString byteString = ByteString.EMPTY;
     private static ArrayList<StorageNodeInfo> storageNodes;
     private static HashMap<Integer, Clientproto.SNReceive> fileChunks;
@@ -22,9 +27,10 @@ public class RetrieveDataManager extends Thread{
 
     //TODO Have list of storage nodes her and add random. If timeout then send to an other.
     /**Constructor*/
-    RetrieveDataManager(String filename, ArrayList<StorageNodeInfo> storageNodes) {
+    RetrieveDataManager(String filename, ArrayList<StorageNodeInfo> storageNodes, String writeFilename) {
         this.storageNodes = storageNodes;
         this.filename = filename;
+        this.writeFilename = writeFilename;
         this.fileChunks = new HashMap<>();
     }
 
@@ -32,10 +38,22 @@ public class RetrieveDataManager extends Thread{
      * Run method that prints the message and sends a reply
      */
     public void run() {
+        System.out.println("Trying to get file for you..");
         //todo if not respons send to new node
         int tryCount = 1;
         boolean success = false;
         Clientproto.SNReceive reply = null;
+        CountDownLatch updateStorageLatch = new CountDownLatch(1);
+        UpdateSystemInfoThread updateSystemInfoThread = new UpdateSystemInfoThread(storageNodes, updateStorageLatch);
+        updateSystemInfoThread.start();
+
+        try {
+            updateStorageLatch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+
 
         while(tryCount < 4 && !success){
             reply = getFirstChunk();
@@ -47,14 +65,12 @@ public class RetrieveDataManager extends Thread{
                 success = true;
             }
         }
-        System.out.println("success = " + success);
 
         if(success) {
             if (reply.getFileExist()) {
                 int numChunks = reply.getFileData().getNumChunks();
                 fileChunks.put(1, reply);
                 if (getAllFileChunks(numChunks)) {
-                    System.out.println("gudbrand");
                     if (verifyChunkMap()) {
                         buildFile();
                     } else {
@@ -74,9 +90,14 @@ public class RetrieveDataManager extends Thread{
     private void buildFile(){
         try {
             byte[] finish = byteString.toByteArray();
-            File yourFile = new File("/Users/gudbrandschistad/IdeaProjects/P1-gudbrandsc/Client/src/main/java/out" + filename);
+
+            System.out.println(writeFilename);
+            File yourFile = new File("./Client/src/main/resources/" + writeFilename);
+            if (yourFile.exists()) {
+                yourFile.delete();
+            }
             yourFile.createNewFile(); // if file already exists will do nothing
-            FileOutputStream oi = new FileOutputStream("/Users/gudbrandschistad/IdeaProjects/P1-gudbrandsc/Client/src/main/java/out" + filename);
+            FileOutputStream oi = new FileOutputStream("./Client/src/main/resources/" + writeFilename);
 
             oi.write(finish);
             System.out.println("File was successfully written");
@@ -92,14 +113,13 @@ public class RetrieveDataManager extends Thread{
 
         while (!abort && chunkNumber <= fileChunks.size()) {
             if (fileChunks.get(chunkNumber) == null) {
-                System.out.println("Found null");
+                System.out.println("Found null for chunk " + chunkNumber);
                 return false;
             } else {
                 byteString = byteString.concat(fileChunks.get(chunkNumber).getFileData().getData());
             }
             chunkNumber++;
         }
-        System.out.println("VerifyChunkMap: All data was here");
         return true;
     }
 
@@ -126,7 +146,7 @@ public class RetrieveDataManager extends Thread{
         //TODO use trycount to get replicanumber
         StorageNodeInfo storageNode = getRandomNode();
         Socket socket = null;
-        System.out.println("Trying to get chunk " + 1 + " from node: " + storageNode.getId());
+        //System.out.println("Trying to get chunk " + 1 + " from node: " + storageNode.getId());
 
         try {
             socket = new Socket(storageNode.getIp(), storageNode.getPort());

@@ -13,24 +13,21 @@ import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 
 public class NewRingEntryRehasingThread extends Thread {
-    private static HashMap<String, Clientproto.SNReceive> dataStore;
-    private static ArrayList<String> filesInSystem;
+    private SystemDataStore systemDataStore;
     private HashRingEntry newNeighbor;
     private BalancedHashRing balancedHashRing;
 
-    public NewRingEntryRehasingThread(HashRingEntry newNeighbor, HashMap<String, Clientproto.SNReceive> dataStore, BalancedHashRing balancedHashRing, ArrayList<String> filesInSystem){
+    public NewRingEntryRehasingThread(HashRingEntry newNeighbor, BalancedHashRing balancedHashRing,SystemDataStore systemDataStore) {
      this.newNeighbor = newNeighbor;
-     this.dataStore = new HashMap<>(dataStore);
      this.balancedHashRing = balancedHashRing;
-     this.filesInSystem = filesInSystem;
+     this.systemDataStore = systemDataStore;
     }
 
 
     public void run() {
         System.out.println("Starting to rehash: ");
-        System.out.println("Number of chunks stored: " + dataStore.size());
 
-        for(Clientproto.SNReceive data : dataStore.values()){
+        for(Clientproto.SNReceive data : systemDataStore.getDataStoreCopy().values()){
             if(data.getFileData().getReplicaNum() == 1){
                 String hashString = data.getFileData().getFilename() + data.getFileData().getChunkNo();
                 try {
@@ -51,7 +48,7 @@ public class NewRingEntryRehasingThread extends Thread {
         }
         CountDownLatch latch = new CountDownLatch(1);
 
-        for (String name : filesInSystem){
+        for (String name : systemDataStore.getFilesInSystem()){
             Clientproto.SNReceive broadcastMessage = Clientproto.SNReceive.newBuilder().setType(Clientproto.SNReceive.packetType.BROADCAST).setFileData(Clientproto.FileData.newBuilder().setFilename(name).build()).build();
             SendBroadCastThread sendBroadCastThread = new SendBroadCastThread(latch, newNeighbor, broadcastMessage );
             sendBroadCastThread.start();

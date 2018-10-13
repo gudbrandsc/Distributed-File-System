@@ -44,7 +44,7 @@ public class MessageListener extends Thread{
             if(cordReceive.getType() == Clientproto.CordReceive.packetType.SYSTEM) {
                 System.out.println("System message");
 
-                SystemReportResponder systemReportResponder = new SystemReportResponder(socket, balancedHashRing);
+                SystemReportResponder systemReportResponder = new SystemReportResponder(socket, balancedHashRing, storageNodeInfos);
                 systemReportResponder.start();
             } else if (cordReceive.getType() == Clientproto.CordReceive.packetType.JOIN){
                 //todo Should be sync

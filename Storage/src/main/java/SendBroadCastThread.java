@@ -30,15 +30,14 @@ public class SendBroadCastThread extends Thread {
 
         try {
             socket = new Socket(entry.getIp(), entry.getPort());
-            InputStream instream = socket.getInputStream();
             OutputStream outstream = socket.getOutputStream();
             broadcastMessage.writeDelimitedTo(outstream);
-            Clientproto.SNReceive reply = Clientproto.SNReceive.parseDelimitedFrom(instream);
             socket.close();
-            latch.countDown();
         } catch (IOException e) {
             e.printStackTrace();
         }
+        System.out.println("Done sending");
+        latch.countDown();
 
     }
 

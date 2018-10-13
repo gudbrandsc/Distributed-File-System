@@ -22,6 +22,9 @@ public class HeartbeatResponder extends Thread{
      * Run method that prints the message and sends a reply
      */
     public void run() {
+        storageNode.setAvailableSpace(cordReceive.getAvailSpace());
+        storageNode.setRequestHandled(cordReceive.getReqHandled());
+
         Clientproto.CordResponse reply = null;
         ArrayList<Clientproto.NodeInfo> newRingEntries = new ArrayList<Clientproto.NodeInfo>();
         ArrayList<Clientproto.NodeInfo> newRemovedRingEntries = new ArrayList<Clientproto.NodeInfo>();
@@ -36,6 +39,7 @@ public class HeartbeatResponder extends Thread{
             }
 
         }
+
         if(storageNode.newRemovedRingEntry()){
             for(HashRingEntry entry : storageNode.getRemovedNodes()){
                 Clientproto.BInteger.Builder builder = Clientproto.BInteger.newBuilder();
