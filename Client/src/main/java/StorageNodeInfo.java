@@ -25,14 +25,6 @@ public class StorageNodeInfo {
         return this.id;
     }
 
-    public void setAvail_space(int avail_space) {
-        this.avail_space = avail_space;
-    }
-
-    public void setReq_handled(int req_handled) {
-        this.req_handled = req_handled;
-    }
-
     public int getAvail_space() {
         return avail_space;
     }

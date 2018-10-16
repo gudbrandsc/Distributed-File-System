@@ -14,20 +14,30 @@ public class ClientServer {
     private static ByteString byteString = ByteString.EMPTY;
     private static ArrayList<StorageNodeInfo> storageNodes = new ArrayList<>();
     private static Random randomGenerator;
+    private static String coordIp;
+    private static int coordPort;
+    private static int port;
 
-    //TODO CORDINATOR DOWN
     public static void main(String[] args) {
-        System.out.println("Starting client on port 5000...");
+
+        if(args.length == 6 )
+            if(args[0].equals("-port") && args[2].equals("-coordIp") && args[4].equals("-coordPort")){
+                port = Integer.parseInt(args[1]);
+                coordIp = args[3];
+                coordPort = Integer.parseInt(args[5]);
+            }
+
+        System.out.println("Starting client on port ...");
 
         try {
-            ServerSocket serve = new ServerSocket(Integer.parseInt("5000"));
+            ServerSocket serve = new ServerSocket(port);
         } catch (IOException e) {
             e.printStackTrace();
             System.out.println("Failed to start server");
 
         }
 
-        getSystemReport();
+        getSystemReport(); //Get available nodes
         while (running) {
             System.out.println("Enter command: ");
             Scanner scanner = new Scanner(System.in);
@@ -136,13 +146,13 @@ public class ClientServer {
         String filename = sc.nextLine();
         System.out.println("Enter the name you want to store the file as: ");
         String writeFilename = sc.nextLine();
-        RetrieveDataManager retrieveDataManager = new RetrieveDataManager(filename, storageNodes, writeFilename);
+        RetrieveDataManager retrieveDataManager = new RetrieveDataManager(filename, storageNodes, writeFilename, coordIp, coordPort);
         retrieveDataManager.start();
     }
 
     private static void getSystemReport(){
         CountDownLatch latch = new CountDownLatch(1);
-        UpdateSystemInfoThread updateSystemInfoThread = new UpdateSystemInfoThread(storageNodes, latch);
+        UpdateSystemInfoThread updateSystemInfoThread = new UpdateSystemInfoThread(storageNodes, latch, coordPort, coordIp);
         updateSystemInfoThread.start();
         try {
             latch.await();
@@ -179,10 +189,10 @@ public class ClientServer {
         Scanner sc = new Scanner(System.in);
         System.out.println("Enter filename: ");
         String filename = sc.nextLine();
-        File file = new File("./Client/src/main/resources/" + filename);
+        File file = new File("./" + filename);
         if(file.exists()) {
             CountDownLatch latch = new CountDownLatch(1);
-            StoreFileManager storeFileManager = new StoreFileManager(file, storageNodes, randomGenerator, filename, latch);
+            StoreFileManager storeFileManager = new StoreFileManager(file, storageNodes, randomGenerator, filename, latch, coordIp, coordPort);
             storeFileManager.start();
             try {
                 latch.await();
@@ -205,7 +215,7 @@ public class ClientServer {
         System.out.println("-- read -- Display all received broadcast messages.");
         System.out.println("-- ls --  List all available files");
         System.out.println("-- system -- Display system info ");
-        System.out.println("-- nodeinfo --  Get");
+        System.out.println("-- nodeinfo --  Get info for a node");
 
 
     }

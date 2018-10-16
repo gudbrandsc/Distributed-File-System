@@ -35,9 +35,7 @@ public class HeartbeatResponder extends Thread{
                 ByteString bytes = ByteString.copyFrom(entry.getPosition().toByteArray());
                 builder.setPosition(bytes);
                 newRingEntries.add(Clientproto.NodeInfo.newBuilder().setPosition(builder.build()).setIp(entry.getIp()).setPort(entry.getPort()).setId(entry.getNodeId()).setNeighbor(entry.neighbor.getNodeId()).build());
-
             }
-
         }
 
         if(storageNode.newRemovedRingEntry()){

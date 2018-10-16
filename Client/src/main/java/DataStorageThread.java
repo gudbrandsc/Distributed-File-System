@@ -9,8 +9,8 @@ import java.util.concurrent.CountDownLatch;
 
 /**
  * @author Gudbrand Schistad
- * Thread class that is used to print a message recived from an other user, and send a reply.
- */
+ * Thread that sends a chunk to a storage node for storage.
+ *  */
 public class DataStorageThread extends Thread{
     private StorageNodeInfo storageNode;
     private Clientproto.SNReceive chunk;
@@ -44,7 +44,6 @@ public class DataStorageThread extends Thread{
             } else if(!reply.getSuccess() ){
                 System.out.println("Failed to store chunk: " + chunk.getFileData().getChunkNo());
             }
-            //TODO if failed to pipeline inform client
         } catch (IOException e) {
             System.out.println("lol");
            // e.printStackTrace();

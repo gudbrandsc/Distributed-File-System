@@ -21,8 +21,9 @@ public class StorageNodeServer {
     private static boolean running = true;
     private static volatile int nodeId;
     private static int  port;
+    private static String myIp;
     private static int  coordPort;
-    private static String  coordIp;
+    private static String coordIp;
     private static HashMap<String, StorageNodeInfo> storageNodeInfoHashMap = new HashMap<String, StorageNodeInfo>();
     private static BalancedHashRing balancedHashRing;
     private static SystemDataStore systemDataStore;
@@ -56,6 +57,8 @@ public class StorageNodeServer {
         }
         SHA1 sha1 = new SHA1();
         balancedHashRing = new BalancedHashRing(sha1);
+        InetAddress ip = InetAddress.getLocalHost();
+        myIp = ip.getHostAddress();
 
         Clientproto.CordResponse reply = sendJoinRequest();
 
@@ -68,7 +71,8 @@ public class StorageNodeServer {
         systemDataStore = new SystemDataStore();
         createStorageDir();
         readMessages(serve, storageNodeInfoHashMap, nodeId, systemDataStore);
-        HearbeatThread hearbeatThread = new HearbeatThread(coordIp, coordPort, "127.0.0.1", port, storageNodeInfoHashMap,
+
+        HearbeatThread hearbeatThread = new HearbeatThread(coordIp, coordPort, myIp, port, storageNodeInfoHashMap,
                 balancedHashRing, nodeId, systemDataStore);
         hearbeatThread.start();
 
@@ -151,7 +155,7 @@ public class StorageNodeServer {
             socket = new Socket(coordIp, coordPort);
             InputStream instream = socket.getInputStream();
             OutputStream outstream = socket.getOutputStream();
-            Clientproto.CordReceive message = Clientproto.CordReceive.newBuilder().setType(Clientproto.CordReceive.packetType.JOIN).setIp(socket.getInetAddress().getHostAddress()).setPort(port).build();
+            Clientproto.CordReceive message = Clientproto.CordReceive.newBuilder().setType(Clientproto.CordReceive.packetType.JOIN).setIp(myIp).setPort(port).build();
             message.writeDelimitedTo(outstream);
             reply = Clientproto.CordResponse.parseDelimitedFrom(instream);
             try {

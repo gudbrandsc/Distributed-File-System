@@ -5,13 +5,20 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 
+/**
+ * Class used to update information about the system.*/
 public class UpdateSystemInfoThread extends Thread{
     private static ArrayList<StorageNodeInfo> storageNodes;
     private CountDownLatch latch;
+    private String coordIp;
+    private int coordPort;
 
-    public UpdateSystemInfoThread(ArrayList<StorageNodeInfo> storageNodes, CountDownLatch latch){
+    /** Constructor */
+    public UpdateSystemInfoThread(ArrayList<StorageNodeInfo> storageNodes, CountDownLatch latch, int coordPort, String coordIp){
         this.storageNodes = storageNodes;
         this.latch = latch;
+        this.coordIp = coordIp;
+        this.coordPort = coordPort;
     }
 
     public void run(){
@@ -19,8 +26,7 @@ public class UpdateSystemInfoThread extends Thread{
         Clientproto.CordResponse reply = null;
 
         try {
-            //TODO not hardcode
-            socket = new Socket("localhost", 5001);
+            socket = new Socket(coordIp, coordPort);
             InputStream instream = socket.getInputStream();
             OutputStream outstream = socket.getOutputStream();
 

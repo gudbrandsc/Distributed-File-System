@@ -24,7 +24,6 @@ public class CoordServer {
     private static boolean existingCluster = false;
 
     public static void main(String[] args) {
-        System.out.println("Starting coordinator server on port 5001...");
         ServerSocket serve = null;
 
         if(args.length == 2){
@@ -40,6 +39,7 @@ public class CoordServer {
             System.out.println("Invalid arguments.");
             System.exit(1);
         }
+        System.out.println("Starting coordinator server on port " + port + "...");
 
         try {
             serve = new ServerSocket(port);
@@ -54,6 +54,7 @@ public class CoordServer {
         balancedHashRing = new BalancedHashRing(sha1);
         readMessages(serve, storageNodeInfoList, nodeId);
 
+        //If coordinator comes back up, then start adding all storage nodes.
         if(existingCluster){
             System.out.println("Joining existing cluster, adding existing ring. ");
             Clientproto.SNReceive message = Clientproto.SNReceive.newBuilder().setType(Clientproto.SNReceive.packetType.RECOVER).build();
@@ -75,7 +76,7 @@ public class CoordServer {
         }
 
 
-
+        //Prints the ring every 10th second
         for(int i = 0; i < 100; i++){
             System.out.println("------------My ring-------------");
 
