@@ -9,6 +9,7 @@ In this project, you will build your own distributed file system (DFS) based on 
 Your implementation must be done in Java, and we will test it using the orion cluster here in the CS department. Communication between components must be implemented via sockets (not RMI, RPC or similar technologies) and you may not use any external libraries. The Java Development Kit has everything you need to complete this assignment.
 
 Since this is a graduate-level class, you have leeway on how you design and implement your system. However, you should be able to explain your design decisions. Additionally, you must include the following components:
+
 **Coordinator**
 **Storage Node**
 **Client**
