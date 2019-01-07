@@ -1,4 +1,4 @@
-# Project 1
+# Project 1: Distributed File System
 In this project, you will build your own distributed file system (DFS) based on the technologies we’ve studied from Amazon, Google, and others. Your DFS will support multiple storage nodes responsible for managing data. Key features include:
 
 * **Decentralization:** While many distributed file systems require a metadata server to locate files (such as the NameNode in HDFS), each storage node will be able to route client requests directly.
