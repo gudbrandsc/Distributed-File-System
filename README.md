@@ -10,9 +10,9 @@ Your implementation must be done in Java, and we will test it using the orion cl
 
 Since this is a graduate-level class, you have leeway on how you design and implement your system. However, you should be able to explain your design decisions. Additionally, you must include the following components:
 
-**Coordinator**
-**Storage Node**
-**Client**
+ * **Coordinator**
+ * **Storage Node**
+ * **Client**
 ### Coordinator
 The Coordinator’s job is simple: it acts as a gatekeeper to the system so that the administrator can add or remove nodes and monitor the health of the cluster. The Coordinator maintains a canonical routing table, which contains a list of active storage nodes and their positions in the system hash space. Your DFS will implement a zero-hop distributed hash table (DHT) design where each node can locate a file given its name without intermediate routing steps. We will use the SHA-1 hash algorithm.
 
