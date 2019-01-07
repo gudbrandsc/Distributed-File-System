@@ -12,7 +12,7 @@ Since this is a graduate-level class, you have leeway on how you design and impl
 **Coordinator**
 **Storage Node**
 **Client**
-#### Coordinator
+### Coordinator
 The Coordinator’s job is simple: it acts as a gatekeeper to the system so that the administrator can add or remove nodes and monitor the health of the cluster. The Coordinator maintains a canonical routing table, which contains a list of active storage nodes and their positions in the system hash space. Your DFS will implement a zero-hop distributed hash table (DHT) design where each node can locate a file given its name without intermediate routing steps. We will use the SHA-1 hash algorithm.
 
 When a new storage node joins your DFS, the first thing it does is contact the Coordinator. The Coordinator will determine whether or not the node is allowed to enter the system, assigns it a Node ID, and places it in the system hash ring. You get to choose how nodes are positioned within the hash space – remember to justify your algorithm in your design document.
@@ -21,7 +21,7 @@ The Coordinator is also responsible for detecting storage node failures and ensu
 
 The Coordinator should **never** see any files or file names, and does not handle any client storage or retrieval requests. If the Coordinator goes down, file storage and retrieval operations should continue to work. When the Coordinator comes back online, it will request a copy of the last known good hash space and resume its usual operations.
 
-#### Storage Node
+### Storage Node
 Storage nodes are responsible for routing client requests as well as storing and retrieving file chunks. When a chunk is stored, it will be checksummed so on-disk corruption can be detected.
 
 Some messages that your storage node could accept (although you are certainly free to design your own):
@@ -38,7 +38,7 @@ The storage nodes will send a heartbeat to the Coordinator periodically to let i
 
 **On startup:** provide a storage directory and the hostname/IP of the Coordinator. Any old files present in the storage directory should be removed. The Coordinator will respond with the current state of the hash space (including the position of the new node).
 
-#### Client
+### Client
 The client’s main functions include:
 
 * Breaking files into chunks, asking storage nodes where to store them, and then sending them to the appropriate storage node(s).
@@ -50,14 +50,14 @@ The client’s main functions include:
 The client will also be able to print out a list of active nodes (retrieved from the Coordinator), the total disk space available in the cluster (in GB), and number of requests handled by each node. Given a specific storage node, the client should be able to retrieve a list of files stored there (including the chunk number, e.g., ‘5 of 17’ or similar).
 
 **NOTE:** Your client must either accept command line arguments or provide its own text-based command entry interface. Recompiling your client to execute different actions is not allowed and will incur a 5 point deduction.
-#### Tips and Resources
+### Tips and Resources
 * Log early, log often! You can use a logging framework or just simple println() calls, but you should print copious log messages. For example, if a StorageNode goes down, the Coordinator should probably print a message acknowledging so. This will help you debug your system and it also makes grading interviews go smoothly.
 * Use the orion cluster (orion01 – orion12) to test your code in a distributed setting.
   * These nodes have the Protocol Buffers library installed as well as the protoc compiler. However, you may want to simply bundle the latest version of the library (as a fat jar) with your code instead.
   * To store your chunk data, use /bigdata/$(whoami), where $(whoami) expands to your user name.
   
 
-#### Project Deliverables
+### Project Deliverables
 This project will be worth 20% of your course grade (20 points). The deliverables include:
 * [1 pts]: A brief design document. You may use UML diagrams, Vizio, OmniGraffle, etc. This outlines:
   * Components of your DFS (this includes the components outlined above but might include other items that you think you’ll need)
